@@ -21,27 +21,24 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		final String sdcardlocation = Environment.getExternalStorageDirectory()
-				.getAbsolutePath();
+		LinearLayout ll =s (LinearLayout) findViewById(R.id.layout);
 
-		final String[] chmod = { "chmod 777 /sdcard/multiboot/*.sh" };
-		runRootCommands(chmod);
+		final String multibootdir = Environment.getExternalStorageDirectory()
+				.getAbsolutePath() + "/multiboot/";
 
-		File root = new File(sdcardlocation + "/multiboot");
+		File root = new File(multibootdir);
 		final String files[] = root.list(audioFilter);
 
-		LinearLayout ll = (LinearLayout) findViewById(R.id.layout);
+		runRootCommands("chmod 777 " + multibootdir + "*.sh");
 
-		for (int i = 0; i < files.length; i++) {
+		for (final String file : files) {
 			Button btn = new Button(this);
-			btn.setText(files[i]);
+			btn.setText(file);
 			ll.addView(btn);
-			final String currentfilename = files[i];
 			btn.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
-					final String[] sdcard = {currentfilename};
 					DisplayToast("Rebooting into specified ROM");
-					runRootCommands(sdcard);
+					runRootCommands("sh " + multibootdir + file);
 				}
 			});
 		}
@@ -49,21 +46,19 @@ public class MainActivity extends Activity {
 
 	FilenameFilter audioFilter = new FilenameFilter() {
 		public boolean accept(File dir, String name) {
-			if (name.endsWith(".sh")) {
+			if (name.endsWith(".sh"))
 				return true;
-			}
-			return false;
+			else
+				return false;
 		}
 	};
 
-	public void runRootCommands(String[] cmds) {
+	public void runRootCommands(String cmd) {
 		Process p = null;
 		try {
 			p = Runtime.getRuntime().exec("su");
 			DataOutputStream os = new DataOutputStream(p.getOutputStream());
-			for (String tmpCmd : cmds) {
-				os.writeBytes(tmpCmd + "\n");
-			}
+			os.writeBytes(cmd + "\n");
 			os.writeBytes("exit\n");
 			os.flush();
 		} catch (IOException e) {

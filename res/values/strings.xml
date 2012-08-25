@@ -1,8 +1,7 @@
 <resources>
 
-    <string name="app_name">Dual Boot</string>
-    <string name="intro">Dual Boot ROMs</string>
+    <string name="app_name">ZTE MultiBoot</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_main">Dual Boot</string>
+    <string name="title_activity_main">ZTE MultiBoot</string>
 
 </resources>
