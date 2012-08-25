@@ -1,6 +1,7 @@
 package com.fusionx.tilal6991.dualboot;
 
 import java.io.DataOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.File;
 
@@ -9,57 +10,60 @@ import android.os.Environment;
 import android.app.Activity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		final Button button = (Button) findViewById(R.id.button);
-		final Button button1 = (Button) findViewById(R.id.button1);
+		final String sdcardlocation = Environment.getExternalStorageDirectory()
+				.getAbsolutePath();
 
-		final String sdcardlocation = Environment.getExternalStorageDirectory().getAbsolutePath();
+		final String[] chmod = { "chmod 777 /sdcard/multiboot/*.sh" };
+		runRootCommands(chmod);
 
-		button1.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				File file = new File(sdcardlocation + "/multiboot/bootnand.img");
-				final String[] nand = {"erase_image boot", "flash_image boot " + file.getAbsolutePath(), "reboot"};
-				if(file.exists())
-				{
-					DisplayToast("Rebooting into NAND ROM");
-					runRootCommands(nand);
-				}
-				else
-					DisplayToast("Please check that " + file.getAbsolutePath() + " exists.");
-			}
-		});
+		File root = new File(sdcardlocation + "/multiboot");
+		final String files[] = root.list(audioFilter);
 
-		button.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				File file = new File(sdcardlocation + "/multiboot/bootsd.img");
-				final String[] sdcard = {"erase_image boot", "flash_image boot " + file.getAbsolutePath(), "reboot"};
-				if(file.exists())
-				{
-					DisplayToast("Rebooting into SD card ROM");
+		LinearLayout ll = (LinearLayout) findViewById(R.id.layout);
+
+		for (int i = 0; i < files.length; i++) {
+			Button btn = new Button(this);
+			btn.setText(files[i]);
+			ll.addView(btn);
+			final String currentfilename = files[i];
+			btn.setOnClickListener(new View.OnClickListener() {
+				public void onClick(View v) {
+					final String[] sdcard = {currentfilename};
+					DisplayToast("Rebooting into specified ROM");
 					runRootCommands(sdcard);
 				}
-				else
-					DisplayToast("Please check that " + file.getAbsolutePath() + " exists.");
-			}
-		});
+			});
+		}
 	}
+
+	FilenameFilter audioFilter = new FilenameFilter() {
+		public boolean accept(File dir, String name) {
+			if (name.endsWith(".sh")) {
+				return true;
+			}
+			return false;
+		}
+	};
 
 	public void runRootCommands(String[] cmds) {
 		Process p = null;
 		try {
 			p = Runtime.getRuntime().exec("su");
-			DataOutputStream os = new DataOutputStream(p.getOutputStream());            
+			DataOutputStream os = new DataOutputStream(p.getOutputStream());
 			for (String tmpCmd : cmds) {
 				os.writeBytes(tmpCmd + "\n");
-			}           
+			}
 			os.writeBytes("exit\n");
 			os.flush();
 		} catch (IOException e) {
@@ -67,8 +71,7 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	public void DisplayToast(String paramString)
-	{
+	public void DisplayToast(String paramString) {
 		Toast.makeText(this, paramString, Toast.LENGTH_SHORT).show();
 	}
 }
