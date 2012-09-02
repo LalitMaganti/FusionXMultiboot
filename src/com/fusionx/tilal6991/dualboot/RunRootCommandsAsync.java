@@ -36,12 +36,12 @@ public class RunRootCommandsAsync extends AsyncTask<Bundle, Void, Void> {
         
         new File(romExtractionDir).mkdirs();
 
-        makeSystemImage();
-        makeDataImage();
+        //makeSystemImage();
+        //makeDataImage();
         extractRom();
         remakeBootImage();
-        fixUpdaterScript();
-        getRidOfBadFiles();
+        //fixUpdaterScript();
+        //getRidOfBadFiles();
         return null;
     }
     
@@ -83,13 +83,13 @@ public class RunRootCommandsAsync extends AsyncTask<Bundle, Void, Void> {
         
         runRootCommand("cp " + romExtractionDir + "/boot.img " + dataDir + "boot.img");
         String base = "0x" + runRootCommand("od -A n -h -j 34 -N 2 " + dataDir + "boot.img|sed 's/ //g'").trim() + "0000";
-        String commandLine = runRootCommand("od -A n --strings -j 64 -N 512 " + dataDir + "boot.img").trim();
+        String commandLine = "\"" + runRootCommand("od -A n --strings -j 64 -N 512 " + dataDir + "boot.img").trim() + "\"";
 
-        runRootCommand(dataDir + "extract-kernel " + dataDir + "boot.img");
+        runRootCommands(new String[]{"cd " + dataDir, "./extract-kernel.pl " + dataDir + "boot.img"});
         runRootCommand("mv " + dataDir + "boot.img-kernel "  + dataDir + "zImage");
         
-        runRootCommand(dataDir + "extract-ramdisk " + dataDir + "boot.img");
-        runRootCommands(new String[]{"cd " + dataDir + "ramdisk-contents", "gunzip -c ../boot.img-ramdisk.gz | cpio -i"});
+        runRootCommands(new String[]{"cd " + dataDir, "./extract-ramdisk.pl " + dataDir + "boot.img"});
+        runRootCommands(new String[]{"cd " + dataDir + "boot.img-ramdisk", "gunzip -c ../boot.img-ramdisk.cpio.gz | cpio -i"});
         
         deleteIfExists(dataDir + "boot.img");
         deleteIfExists(romExtractionDir + "boot.img");
@@ -104,28 +104,30 @@ public class RunRootCommandsAsync extends AsyncTask<Bundle, Void, Void> {
         } catch (IOException e1) {
         }
 
-        runRootCommand("sed -f " + dataDir + "init.sed < " + dataDir + "ramdisk-contents/init.rc > " + dataDir + "ramdisk-contents/initrc.fix");
-        runRootCommand("mv " + dataDir + "ramdisk-contents/init.rc.fix " + dataDir + "ramdisk-contents/init.rc");
+        runRootCommand("sed -f " + dataDir + "init.sed < " + dataDir + "boot.img-ramdisk/init.rc > " + dataDir + "boot.img-ramdisk/init.rc.fix");
+        runRootCommand("mv " + dataDir + "boot.img-ramdisk/init.rc.fix " + dataDir + "boot.img-ramdisk/init.rc");
         
         deleteIfExists(dataDir + "init.sed");
         
-        runRootCommand(dataDir + "mkbootfs " + dataDir + "ramdisk-contents | gzip > " + dataDir + "ramdisk.gz");
-        runRootCommand(dataDir + "mkbootimg --cmdline " + commandLine + "--base " + base + " --kernel " + dataDir + "zImage --ramdisk " + dataDir + "ramdisk.gz -o " + tempSdCardDir + "boot.img");
+        runRootCommand(dataDir + "mkbootfs " + dataDir + "boot.img-ramdisk | gzip > " + dataDir + "ramdisk.gz");
+        deleteIfExists(dataDir + "boot.img-ramdisk");
+        
+        runRootCommand(dataDir + "mkbootimg --cmdline " + commandLine + " --base " + base + " --kernel " + dataDir + "zImage --ramdisk " + dataDir + "ramdisk.gz -o " + tempSdCardDir + "boot.img");
         deleteIfExists(dataDir + "zImage");
         deleteIfExists(dataDir + "ramdisk.gz");
-        deleteIfExists(dataDir + "ramdisk-contents");
      }
-    
+
     private void extractRom() {
       new File(romExtractionDir).mkdir();
       new File(finalOutdir).mkdir();
+      new File(dataDir + "boot.img-ramdisk").mkdir();
       runRootCommand("unzip -q " + inputFile + " -d " + romExtractionDir);
     }
-    
+
     private void getRidOfBadFiles() {
-        
+        deleteIfExists(tempSdCardDir);
     }
-    
+
     private void makeDataImage() {
         dataoutput = tempSdCardDir + b.getString("dataimagename");
         int datasize =  Integer.parseInt(b.getString("dataimagesize")) * 1024;
@@ -175,7 +177,7 @@ public class RunRootCommandsAsync extends AsyncTask<Bundle, Void, Void> {
         Process p = null;
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < cmd.length; i++)
-            Log.d("Multiboot", cmd[1]);
+            Log.d("Multiboot", cmd[i]);
         try {
             p = Runtime.getRuntime().exec("su");
             BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -197,7 +199,7 @@ public class RunRootCommandsAsync extends AsyncTask<Bundle, Void, Void> {
     
     public void deleteIfExists(String fileName) {
         File file = new File(fileName);
-        if (file.exists())
-            file.delete();
+        if(file.exists())
+            runRootCommand("rm -rf " + fileName);
     }
 }

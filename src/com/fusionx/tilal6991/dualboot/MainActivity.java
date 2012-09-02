@@ -22,7 +22,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         writeRawResource(R.raw.raw, "raw.tar");
         runRootCommand("tar -zxvf /data/data/com.fusionx.tilal6991.dualboot/files/raw.tar -C /data/data/com.fusionx.tilal6991.dualboot/files/");
-        runRootCommand("chmod 777 /data/data/com.fusionx.tilal6991.dualboot/files/*");
+        runRootCommand("chmod -R 777 /data/data/com.fusionx.tilal6991.dualboot/files/*");
     }
 
     private void writeRawResource(int resource, String name) {
