@@ -1,13 +1,12 @@
 <resources>
 
     <string name="app_name">ZTE MultiBoot</string>
-    <string name="menu_settings">Settings</string>
     <string name="title_activity_main">ZTE MultiBoot</string>
     <string name="title_activity_make_multi_boot_rom">Make Multiboot Rom</string>
     <string name="title_activity_system_partition">System Data Image</string>
     <string name="title_activity_data_partition">Data Image</string>
     <string name="title_activity_finalisation">Finalisation</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="title_activity_make_multi_boot">MakeMultiBoot</string>
-
+    <string name="title_activity_make_multi_boot">Make MultiBoot</string>
+    <string name="button_next">Next</string>
+    <string name="button_finish">Finish</string>
 </resources>

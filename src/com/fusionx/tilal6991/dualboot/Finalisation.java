@@ -9,7 +9,6 @@ import android.app.Activity;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
@@ -32,12 +31,6 @@ public class Finalisation extends Activity {
             findViewById(R.id.edtSystem).setVisibility(4);
             findViewById(R.id.txtSystem).setVisibility(4);
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_finalisation, menu);
-        return true;
     }
 
     public void chooseRom(final View v) {
@@ -69,6 +62,5 @@ public class Finalisation extends Activity {
         intent.putExtra("filename", mChosen);
         intent.putExtras(getIntent().getExtras());
         startActivity(intent);
-        finish();
     }
 }

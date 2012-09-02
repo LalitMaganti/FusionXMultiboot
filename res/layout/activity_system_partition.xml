@@ -42,7 +42,7 @@
         android:layout_marginBottom="28dp"
         android:layout_marginRight="19dp"
         android:onClick="next"
-        android:text="Next" />
+        android:text="@string/button_next" />
 
     <EditText
         android:id="@+id/editText1"

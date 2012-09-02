@@ -3,7 +3,6 @@ package com.fusionx.tilal6991.dualboot;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
-import android.view.Menu;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -14,11 +13,6 @@ public class DataPartition extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_data_partition);
-    }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_data_partition, menu);
-        return true;
     }
     public void next(View v) {
         Intent intent = new Intent(this, Finalisation.class);
