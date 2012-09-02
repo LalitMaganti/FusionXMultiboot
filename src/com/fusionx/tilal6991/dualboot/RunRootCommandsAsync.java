@@ -40,7 +40,7 @@ public class RunRootCommandsAsync extends AsyncTask<Bundle, Void, Void> {
         //makeDataImage();
         extractRom();
         remakeBootImage();
-        //fixUpdaterScript();
+        fixUpdaterScript();
         //getRidOfBadFiles();
         return null;
     }
@@ -49,8 +49,99 @@ public class RunRootCommandsAsync extends AsyncTask<Bundle, Void, Void> {
         File file = new File("Student.txt");
         try {
             Scanner scanner = new Scanner(file);
+            String k;
             while (scanner.hasNextLine()) {
-                if(scanner.nextLine().contains("format(\"yaffs2\", \"MTD\", \"system\", \"0\", \"/system\")")) { 
+                String nextline = scanner.nextLine();
+                if(nextline.contains("format(\"yaffs2\", \"MTD\", \"system\", \"0\", \"/system\")")) { 
+                    k = "/format(\"yaffs2\", \"MTD\", \"system\", \"0\", \"\\/system\");/i\\\n" +
+                    "run_program(\"\\/sbin\\/mkdir\", \"-p\", \"\\/mnt\\/sdcard\");\n" +
+                    "/format(\"yaffs2\", \"MTD\", \"system\", \"0\", \"\\/system\");/i\\\n" +
+                    "run_program(\"\\/sbin\\/mount\", \"-t\", \"vfat\", \"\\/dev\\/block\\/mmcblk0p1\", \"\\/mnt\\/sdcard\");\n" +
+                    "/format(\"yaffs2\", \"MTD\", \"system\", \"0\", \"\\/system\");/i\\\n" +
+                    "run_program(\"\\/sbin\\/losetup\", \"\\/dev\\/block\\/loop0\", \"\\/mnt\\/sdcard\\/multiboot\\/system.img\");\n" +
+                    "/format(\"yaffs2\", \"MTD\", \"system\", \"0\", \"\\/system\");/i\\\"\n" +
+                    "run_program(\"\\/sbin\\/losetup\", \"\\/dev\\/block\\/loop1\", \"\\/mnt\\/sdcard\\/multiboot\\/data.img\");\n\n" +
+
+                    "/format(\"yaffs2\", \"MTD\", \"system\", \"0\", \"\\/system\");/c\\\n" +
+                    "run_program(\"\\/sbin\\/mke2fs\", \"-T\", \"ext2\", \"\\/dev\\/block\\/loop0\");\n\n" +
+
+                    "/mount(\"yaffs2\", \"MTD\", \"system\", \"\\/system\");/c\\\n" + 
+                    "run_program(\"\\/sbin\\/mount\", \"-t\", \"ext2\", \"\\/dev\\/block\\/loop0\", \"\\/system\");\n\n" +
+
+                    "/unmount(\"\\/system\");/a\\\n" +
+                    "run_program(\"\\/sbin\\/losetup\", \"-d\", \"\\/dev\\/block\\/loop0\");\n" +
+
+                    "/unmount(\"\\/system\");/a\\\n" +
+                    "run_program(\"\\/sbin\\/losetup\", \"-d\", \"\\/dev\\/block\\/loop1\");\n";
+                    break;
+                }
+                else if(nextline.contains("format(\"yaffs2\", \"MTD\", \"system\", \"0\")")) { 
+                    k = "/format(\"yaffs2\", \"MTD\", \"system\", \"0\");/i\\\n" +
+                    "run_program(\"\\/sbin\\/mkdir\", \"-p\", \"\\/mnt\\/sdcard\");\n" +
+                    "/format(\"yaffs2\", \"MTD\", \"system\", \"0\");/i\\\n" +
+                    "run_program(\"\\/sbin\\/mount\", \"-t\", \"vfat\", \"\\/dev\\/block\\/mmcblk0p1\", \"\\/mnt\\/sdcard\");\n" +
+                    "/format(\"yaffs2\", \"MTD\", \"system\", \"0\");/i\\\n" +
+                    "run_program(\"\\/sbin\\/losetup\", \"\\/dev\\/block\\/loop0\", \"\\/mnt\\/sdcard\\/multiboot\\/system.img\");\n" +
+                    "/format(\"yaffs2\", \"MTD\", \"system\", \"0\");/i\\\"\n" +
+                    "run_program(\"\\/sbin\\/losetup\", \"\\/dev\\/block\\/loop1\", \"\\/mnt\\/sdcard\\/multiboot\\/data.img\");\n\n" +
+
+                    "/format(\"yaffs2\", \"MTD\", \"system\", \"0\");/c\\\n" +
+                    "run_program(\"\\/sbin\\/mke2fs\", \"-T\", \"ext2\", \"\\/dev\\/block\\/loop0\");\n\n" +
+
+                    "/mount(\"yaffs2\", \"MTD\", \"system\", \"\\/system\");/c\\\n" + 
+                    "run_program(\"\\/sbin\\/mount\", \"-t\", \"ext2\", \"\\/dev\\/block\\/loop0\", \"\\/system\");\n\n" +
+
+                    "/unmount(\"\\/system\");/a\\\n" +
+                    "run_program(\"\\/sbin\\/losetup\", \"-d\", \"\\/dev\\/block\\/loop0\");\n" +
+
+                    "/unmount(\"\\/system\");/a\\\n" +
+                    "run_program(\"\\/sbin\\/losetup\", \"-d\", \"\\/dev\\/block\\/loop1\");\n";
+                    break;
+                }
+                else if(nextline.contains("format(\"yaffs2\", \"MTD\", \"system\"")) { 
+                    k = "/format(\"yaffs2\", \"MTD\", \"system\");/i\\\n" +
+                    "run_program(\"\\/sbin\\/mkdir\", \"-p\", \"\\/mnt\\/sdcard\");\n" +
+                    "/format(\"yaffs2\", \"MTD\", \"system\");/i\\\n" +
+                    "run_program(\"\\/sbin\\/mount\", \"-t\", \"vfat\", \"\\/dev\\/block\\/mmcblk0p1\", \"\\/mnt\\/sdcard\");\n" +
+                    "/format(\"yaffs2\", \"MTD\", \"system\");/i\\\n" +
+                    "run_program(\"\\/sbin\\/losetup\", \"\\/dev\\/block\\/loop0\", \"\\/mnt\\/sdcard\\/multiboot\\/system.img\");\n" +
+                    "/format(\"yaffs2\", \"MTD\", \"system\");/i\\\"\n" +
+                    "run_program(\"\\/sbin\\/losetup\", \"\\/dev\\/block\\/loop1\", \"\\/mnt\\/sdcard\\/multiboot\\/data.img\");\n\n" +
+
+                    "/format(\"yaffs2\", \"MTD\", \"system\");/c\\\n" +
+                    "run_program(\"\\/sbin\\/mke2fs\", \"-T\", \"ext2\", \"\\/dev\\/block\\/loop0\");\n\n" +
+
+                    "/mount(\"yaffs2\", \"MTD\", \"system\", \"\\/system\");/c\\\n" + 
+                    "run_program(\"\\/sbin\\/mount\", \"-t\", \"ext2\", \"\\/dev\\/block\\/loop0\", \"\\/system\");\n\n" +
+
+                    "/unmount(\"\\/system\");/a\\\n" +
+                    "run_program(\"\\/sbin\\/losetup\", \"-d\", \"\\/dev\\/block\\/loop0\");\n" +
+
+                    "/unmount(\"\\/system\");/a\\\n" +
+                    "run_program(\"\\/sbin\\/losetup\", \"-d\", \"\\/dev\\/block\\/loop1\");\n";
+                    break;
+                }
+                else if(nextline.contains("format(\"MTD\", \"system\"")) {
+                    k = "/format(\"MTD\", \"system\");/i\\\n" +
+                    "run_program(\"\\/sbin\\/mkdir\", \"-p\", \"\\/mnt\\/sdcard\");\n" +
+                    "/format(\"MTD\", \"system\");/i\\\n" +
+                    "run_program(\"\\/sbin\\/mount\", \"-t\", \"vfat\", \"\\/dev\\/block\\/mmcblk0p1\", \"\\/mnt\\/sdcard\");\n" +
+                    "/format(\"MTD\", \"system\");/i\\\n" +
+                    "run_program(\"\\/sbin\\/losetup\", \"\\/dev\\/block\\/loop0\", \"\\/mnt\\/sdcard\\/multiboot\\/system.img\");\n" +
+                    "/format(\"MTD\", \"system\");/i\\\"\n" +
+                    "run_program(\"\\/sbin\\/losetup\", \"\\/dev\\/block\\/loop1\", \"\\/mnt\\/sdcard\\/multiboot\\/data.img\");\n\n" +
+
+                    "/format(\"MTD\", \"system\");/c\\\n" +
+                    "run_program(\"\\/sbin\\/mke2fs\", \"-T\", \"ext2\", \"\\/dev\\/block\\/loop0\");\n\n" +
+
+                    "/mount(\"yaffs2\", \"MTD\", \"system\", \"\\/system\");/c\\\n" + 
+                    "run_program(\"\\/sbin\\/mount\", \"-t\", \"ext2\", \"\\/dev\\/block\\/loop0\", \"\\/system\");\n\n" +
+
+                    "/unmount(\"\\/system\");/a\\\n" +
+                    "run_program(\"\\/sbin\\/losetup\", \"-d\", \"\\/dev\\/block\\/loop0\");\n" +
+
+                    "/unmount(\"\\/system\");/a\\\n" +
+                    "run_program(\"\\/sbin\\/losetup\", \"-d\", \"\\/dev\\/block\\/loop1\");\n";
                     break;
                 }
             }
