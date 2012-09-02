@@ -10,6 +10,7 @@ import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 public class Finalisation extends Activity {
@@ -60,6 +61,13 @@ public class Finalisation extends Activity {
     public void finish(View view) {
         Intent intent = new Intent(this, MakeMultiBoot.class);
         intent.putExtra("filename", mChosen);
+        Bundle b = getIntent().getExtras();
+        boolean data = b.getBoolean("createdataimage");
+        boolean system = b.getBoolean("createsystemimage");
+        if (data == false)
+            intent.putExtra("dataimagename", ((EditText) findViewById(R.id.edtData)).getText().toString());
+        if (system == false)
+            intent.putExtra("systemimagename", ((EditText) findViewById(R.id.edtSystem)).getText().toString());
         intent.putExtras(getIntent().getExtras());
         startActivity(intent);
     }

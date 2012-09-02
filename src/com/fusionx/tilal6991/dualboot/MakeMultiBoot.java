@@ -14,7 +14,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.app.Activity;
+import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MakeMultiBoot extends Activity {
@@ -58,7 +61,7 @@ public class MakeMultiBoot extends Activity {
             romExtractionDir = tempSdCardDir + romName + "/";
 
             new File(romExtractionDir).mkdirs();
-            new File(finalOutdir).mkdirs();
+            new File(finalOutdir + "loop-roms").mkdirs();
             new File(dataDir + "boot.img-ramdisk").mkdirs();
 
             publishProgress("Making directories");
@@ -66,20 +69,35 @@ public class MakeMultiBoot extends Activity {
             dataImageName = b.getString("dataimagename");
             systemImageName = b.getString("systemimagename");
 
-            makeSystemImage();
-            makeDataImage();
+            boolean data = b.getBoolean("createdataimage");
+            boolean system = b.getBoolean("createsystemimage");
+            
+            preClean();
+            if(system)
+                makeSystemImage();
+            if(data)
+                makeDataImage();
             extractRom();
             remakeBootImage();
             fixUpdaterScript();
             packUpAndFinish();
-            cleanup();
+            //cleanup();
             return null;
+        }
+
+        private void preClean() {
+            deleteIfExists(finalOutdir + romName + "boot.img");
+            deleteIfExists(finalOutdir + "boot" + romName
+                    + ".sh");
+            deleteIfExists(finalOutdir + "boot.sh");
+            deleteIfExists(finalOutdir + "boot.img");
+            deleteIfExists(finalOutdir + "loop-roms/" + romName + "-loopinstall.zip");
         }
 
         private void packUpAndFinish() {
             publishProgress("Making ROM zip");
-            runRootCommand(dataDir + "zip -r -q " + finalOutdir + " loop-roms/"
-                    + romName + "-loopinstall.zip" + romExtractionDir + "*");
+            runRootCommand(dataDir + "zip -r -q " + finalOutdir + "loop-roms/"
+                    + romName + "-loopinstall.zip " + romExtractionDir + "*");
             publishProgress("Creating copy of loop boot image for flashing");
             runRootCommand("cp " + romExtractionDir + "boot.img " + finalOutdir
                     + romName + "boot.img");
@@ -102,8 +120,7 @@ public class MakeMultiBoot extends Activity {
                     + "reboot";
             publishProgress("Creating nand script file");
             try {
-                FileWriter l = new FileWriter(finalOutdir + "boot" + romName
-                        + ".sh");
+                FileWriter l = new FileWriter(finalOutdir + "boot.sh");
                 l.write(m);
                 l.close();
             } catch (IOException e) {
@@ -226,7 +243,6 @@ public class MakeMultiBoot extends Activity {
                                 + dataImageName
                                 + "\");\n\n"
                                 +
-
                                 "/format(\"MTD\", \"system\");/c\\\n"
                                 + "run_program(\"\\/sbin\\/mke2fs\", \"-T\", \"ext2\", \"\\/dev\\/block\\/loop0\");\n\n"
                                 +
@@ -400,6 +416,7 @@ public class MakeMultiBoot extends Activity {
         private String runRootCommand(String cmd) {
             Process p = null;
             StringBuilder sb = new StringBuilder();
+            Log.d("Multiboot", cmd);
             try {
                 p = Runtime.getRuntime().exec("su");
                 BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -423,6 +440,8 @@ public class MakeMultiBoot extends Activity {
         private String runRootCommands(String[] cmd) {
             Process p = null;
             StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < cmd.length; i++)
+                Log.d("Multiboot", cmd[i]);
             try {
                 p = Runtime.getRuntime().exec("su");
                 BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -456,8 +475,9 @@ public class MakeMultiBoot extends Activity {
         }
 
         public void WriteOutput(String paramString) {
-            EditText k = (EditText) findViewById(R.id.editText1);
-            k.append(paramString);
+            TextView k = (TextView) findViewById(R.id.editText1);
+            k.append(paramString + "\n");
+            k.setMovementMethod(new ScrollingMovementMethod());
         }
     }
 }
