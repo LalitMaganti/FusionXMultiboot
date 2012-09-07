@@ -16,6 +16,8 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        CommonFunctions
+                .deleteIfExists("/data/data/com.fusionx.tilal6991.dualboot/files/");
         writeRawResource(R.raw.raw, "raw.tar");
         CommonFunctions
                 .runRootCommand("tar -zxvf /data/data/com.fusionx.tilal6991.dualboot/files/raw.tar -C /data/data/com.fusionx.tilal6991.dualboot/files/");

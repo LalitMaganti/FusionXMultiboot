@@ -15,20 +15,21 @@ import android.content.Intent;
 import android.text.method.ScrollingMovementMethod;
 import android.widget.TextView;
 
-public class MakeMultiBoot extends Activity {
+public class CreateMultiBootRom extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_make_multi_boot);
-        RunRootCommandsAsync h = new RunRootCommandsAsync();
-        h.execute(getIntent().getExtras());
+        CreateMultibootRomAsync instance = new CreateMultibootRomAsync();
+        instance.execute(getIntent().getExtras());
     }
 
     @Override
     public void onBackPressed() {
     }
 
-    public class RunRootCommandsAsync extends AsyncTask<Bundle, String, Void> {
+    public class CreateMultibootRomAsync extends
+            AsyncTask<Bundle, String, Void> {
         String tempSdCardDir = Environment.getExternalStorageDirectory()
                 .getAbsolutePath() + "/tempMultiboot/";
         String finalOutdir = Environment.getExternalStorageDirectory()
@@ -87,11 +88,12 @@ public class MakeMultiBoot extends Activity {
 
         private void preClean() {
             publishProgress("Running a preclean");
-            deleteIfExists(finalOutdir + romName + "boot.img");
-            deleteIfExists(finalOutdir + "boot" + romName + ".sh");
-            deleteIfExists(finalOutdir + "boot.sh");
-            deleteIfExists(finalOutdir + "boot.img");
-            deleteIfExists(finalOutdir + "loop-roms/" + romName
+            CommonFunctions.deleteIfExists(finalOutdir + romName + "boot.img");
+            CommonFunctions.deleteIfExists(finalOutdir + "boot" + romName
+                    + ".sh");
+            CommonFunctions.deleteIfExists(finalOutdir + "boot.sh");
+            CommonFunctions.deleteIfExists(finalOutdir + "boot.img");
+            CommonFunctions.deleteIfExists(finalOutdir + "loop-roms/" + romName
                     + "-loopinstall.zip");
         }
 
@@ -106,16 +108,17 @@ public class MakeMultiBoot extends Activity {
             CommonFunctions.runRootCommand("cp " + romExtractionDir
                     + "boot.img " + finalOutdir + romName + "boot.img");
 
-            FileWriter l;
-            String m = "#!/system/bin/sh\n"
+            FileWriter fileWriter;
+            String shFile = "#!/system/bin/sh\n"
                     + "flash_image boot /sdcard/multiboot/" + romName
                     + "boot.img\n" + "reboot";
 
             publishProgress("Creating loop script file");
             try {
-                l = new FileWriter(finalOutdir + "boot" + romName + ".sh");
-                l.write(m);
-                l.close();
+                fileWriter = new FileWriter(finalOutdir + "boot" + romName
+                        + ".sh");
+                fileWriter.write(shFile);
+                fileWriter.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -123,15 +126,15 @@ public class MakeMultiBoot extends Activity {
             publishProgress("Creating nand boot image");
             CommonFunctions
                     .runRootCommand("dd if=/dev/mtd/mtd1 of=/sdcard/multiboot/boot.img bs=4096");
-            m = "#!/system/bin/sh\n"
+            shFile = "#!/system/bin/sh\n"
                     + "flash_image boot /sdcard/multiboot/boot.img\n"
                     + "reboot";
 
             publishProgress("Creating nand script file");
             try {
-                l = new FileWriter(finalOutdir + "boot.sh");
-                l.write(m);
-                l.close();
+                fileWriter = new FileWriter(finalOutdir + "boot.sh");
+                fileWriter.write(shFile);
+                fileWriter.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -197,17 +200,17 @@ public class MakeMultiBoot extends Activity {
             publishProgress("Moving boot image");
             CommonFunctions.runRootCommand("cp " + romExtractionDir
                     + "boot.img " + dataDir + "boot.img");
-            deleteIfExists(romExtractionDir + "boot.img");
+            CommonFunctions.deleteIfExists(romExtractionDir + "boot.img");
 
             publishProgress("Getting boot.img parameters");
             String base = "0x"
                     + CommonFunctions.runRootCommand(
                             dataDir + "busybox od -A n -h -j 34 -N 2 "
                                     + dataDir + "boot.img").trim() + "0000";
-            String commandLine = "\""
+            String commandLine = "'"
                     + CommonFunctions.runRootCommand(
                             dataDir + "busybox od -A n --strings -j 64 -N 512 "
-                                    + dataDir + "boot.img").trim() + "\"";
+                                    + dataDir + "boot.img").trim() + "'";
 
             publishProgress("Extracting kernel");
             CommonFunctions.runRootCommands(new String[] { "cd " + dataDir,
@@ -220,11 +223,12 @@ public class MakeMultiBoot extends Activity {
                     "cd " + dataDir + "boot.img-ramdisk",
                     "gunzip -c ../boot.img-ramdisk.cpio.gz | cpio -i" });
 
-            deleteIfExists(dataDir + "boot.img");
+            CommonFunctions.deleteIfExists(dataDir + "boot.img");
 
             CommonFunctions.runRootCommand("cp " + dataDir
                     + "boot.img-ramdisk/init.rc " + tempSdCardDir + "init.rc");
-            deleteIfExists(dataDir + "boot.img-ramdisk/init.rc");
+            CommonFunctions
+                    .deleteIfExists(dataDir + "boot.img-ramdisk/init.rc");
 
             publishProgress("Editing init.rc");
 
@@ -249,17 +253,22 @@ public class MakeMultiBoot extends Activity {
 
             CommonFunctions.runRootCommand("cp " + tempSdCardDir + "init.rc "
                     + dataDir + "boot.img-ramdisk/init.rc");
-            deleteIfExists(tempSdCardDir + "init.rc");
+            CommonFunctions.deleteIfExists(tempSdCardDir + "init.rc");
 
             publishProgress("Making compressed ramdisk");
-            CommonFunctions.runRootCommand(dataDir + "mkbootfs " + dataDir
-                    + "boot.img-ramdisk | gzip > " + dataDir + "ramdisk.gz");
+            CommonFunctions.runRootCommands(new String[] { "cd " + dataDir,
+                    "./mkbootfs boot.img-ramdisk | gzip > ramdisk.gz" });
 
             publishProgress("Making boot image");
-            CommonFunctions.runRootCommand(dataDir + "mkbootimg --cmdline "
-                    + commandLine + " --base " + base + " --kernel " + dataDir
-                    + "boot.img-kernel --ramdisk " + dataDir + "ramdisk.gz -o "
-                    + romExtractionDir + "boot.img");
+            CommonFunctions
+                    .runRootCommands(new String[] {
+                            "cd " + dataDir,
+                            "./mkbootimg --cmdline "
+                                    + commandLine
+                                    + " --base "
+                                    + base
+                                    + " --kernel boot.img-kernel --ramdisk ramdisk.gz -o "
+                                    + romExtractionDir + "boot.img" });
         }
 
         private void extractRom() {
@@ -270,8 +279,8 @@ public class MakeMultiBoot extends Activity {
 
         private void cleanup() {
             publishProgress("Cleaning up");
-            deleteIfExists(tempSdCardDir);
-            deleteIfExists(dataDir);
+            CommonFunctions.deleteIfExists(tempSdCardDir);
+            CommonFunctions.deleteIfExists(dataDir);
             publishProgress("Finished!");
             publishProgress("gotomain");
         }
@@ -313,11 +322,6 @@ public class MakeMultiBoot extends Activity {
             CommonFunctions.runRootCommand("losetup -d " + losetupLocation);
         }
 
-        public void deleteIfExists(String fileName) {
-            if (new File(fileName).exists())
-                CommonFunctions.runRootCommand("rm -rf " + fileName);
-        }
-
         @Override
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
@@ -328,9 +332,9 @@ public class MakeMultiBoot extends Activity {
         }
 
         public void WriteOutput(String paramString) {
-            TextView k = (TextView) findViewById(R.id.editText1);
-            k.append(paramString + "\n");
-            k.setMovementMethod(new ScrollingMovementMethod());
+            TextView editText = (TextView) findViewById(R.id.editText1);
+            editText.append(paramString + "\n");
+            editText.setMovementMethod(new ScrollingMovementMethod());
         }
     }
 }

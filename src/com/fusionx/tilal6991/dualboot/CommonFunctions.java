@@ -2,6 +2,7 @@ package com.fusionx.tilal6991.dualboot;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -57,5 +58,10 @@ public class CommonFunctions {
             Log.d("Mutiboot", cmd[i]);
         Log.d("Mutiboot", sb.toString());
         return sb.toString();
+    }
+
+    public static void deleteIfExists(String fileName) {
+        if (new File(fileName).exists())
+            runRootCommand("rm -rf " + fileName);
     }
 }

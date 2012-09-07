@@ -60,7 +60,7 @@ public class Finalisation extends Activity {
     }
 
     public void finish(View view) {
-        Intent intent = new Intent(this, MakeMultiBoot.class);
+        Intent intent = new Intent(this, CreateMultiBootRom.class);
         intent.putExtra("filename", mChosen);
         Bundle b = getIntent().getExtras();
         boolean data = b.getBoolean("createdataimage");

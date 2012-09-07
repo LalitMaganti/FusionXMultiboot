@@ -13,6 +13,7 @@ public class DataPartition extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_data_partition);
+        changeEnable(findViewById(R.id.checkBox1));
     }
 
     public void next(View v) {
