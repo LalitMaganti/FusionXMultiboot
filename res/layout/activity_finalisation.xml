@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:text="Name of system image (use the same name as earlier if you created a system image or use an already existing one) WARNING - if this is wrong, the ROM will not boot"
+        android:text="Name of system image. WARNING - if this is wrong, the ROM will not boot"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Button
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/edtSystem"
-        android:text="Name of data image (use the same name as earlier if you created a data image or use an already existing one) WARNING - if this is wrong, the ROM will not boot"
+        android:text="Name of data image. WARNING - if this is wrong, the ROM will not boot"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <EditText

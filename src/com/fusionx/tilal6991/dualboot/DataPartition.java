@@ -14,21 +14,27 @@ public class DataPartition extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_data_partition);
     }
+
     public void next(View v) {
         Intent intent = new Intent(this, Finalisation.class);
-        boolean checked = ((CheckBox) (findViewById(R.id.checkBox1))).isChecked();
+        boolean checked = ((CheckBox) (findViewById(R.id.checkBox1)))
+                .isChecked();
         intent.putExtra("createdataimage", checked);
-        if (checked)
-        {
-            intent.putExtra("dataimagename", ((EditText) findViewById(R.id.editText2)).getText().toString());
-            intent.putExtra("dataimagesize", ((EditText) findViewById(R.id.editText1)).getText().toString());
+        if (checked) {
+            intent.putExtra("dataimagename",
+                    ((EditText) findViewById(R.id.editText2)).getText()
+                            .toString());
+            intent.putExtra("dataimagesize",
+                    ((EditText) findViewById(R.id.editText1)).getText()
+                            .toString());
         }
         intent.putExtras(getIntent().getExtras());
         startActivity(intent);
     }
+
     public void changeEnable(View view) {
         int visible;
-        if(!(((CheckBox)view).isChecked()))
+        if (!(((CheckBox) view).isChecked()))
             visible = 4;
         else
             visible = 0;

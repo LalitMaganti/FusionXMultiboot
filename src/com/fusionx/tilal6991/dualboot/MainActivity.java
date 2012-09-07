@@ -1,11 +1,8 @@
 package com.fusionx.tilal6991.dualboot;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 import android.os.Bundle;
@@ -20,8 +17,10 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         writeRawResource(R.raw.raw, "raw.tar");
-        runRootCommand("tar -zxvf /data/data/com.fusionx.tilal6991.dualboot/files/raw.tar -C /data/data/com.fusionx.tilal6991.dualboot/files/");
-        runRootCommand("chmod -R 777 /data/data/com.fusionx.tilal6991.dualboot/files/*");
+        CommonFunctions
+                .runRootCommand("tar -zxvf /data/data/com.fusionx.tilal6991.dualboot/files/raw.tar -C /data/data/com.fusionx.tilal6991.dualboot/files/");
+        CommonFunctions
+                .runRootCommand("chmod -R 777 /data/data/com.fusionx.tilal6991.dualboot/files/*");
     }
 
     private void writeRawResource(int resource, String name) {
@@ -40,9 +39,9 @@ public class MainActivity extends Activity {
                 out.close();
             } catch (IOException e) {
             }
-        } 
+        }
     }
-    
+
     public void openRomBoot(View view) {
         Intent intent = new Intent(this, BootRom.class);
         startActivity(intent);
@@ -52,26 +51,4 @@ public class MainActivity extends Activity {
         Intent intent = new Intent(this, SystemPartition.class);
         startActivity(intent);
     }
-
-     private String runRootCommand(String cmd) {
-            Process p = null;
-            StringBuilder sb = new StringBuilder();
-            try {
-                p = Runtime.getRuntime().exec("su");
-                BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                DataOutputStream os = new DataOutputStream(p.getOutputStream());
-                os.writeBytes(cmd + "\n");
-                os.writeBytes("exit\n");
-                os.flush();
-                String read = br.readLine();
-                while (read != null) {
-                    sb.append(read + '\n');
-                    read = br.readLine();
-                }
-                
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return sb.toString();
-        }
 }

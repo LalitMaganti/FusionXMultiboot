@@ -1,24 +1,19 @@
 package com.fusionx.tilal6991.dualboot;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Scanner;
 
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.app.Activity;
+import android.content.Intent;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MakeMultiBoot extends Activity {
     @Override
@@ -31,10 +26,6 @@ public class MakeMultiBoot extends Activity {
 
     @Override
     public void onBackPressed() {
-    }
-
-    public void DisplayToast(String paramString) {
-        Toast.makeText(this, paramString, Toast.LENGTH_SHORT).show();
     }
 
     public class RunRootCommandsAsync extends AsyncTask<Bundle, String, Void> {
@@ -50,328 +41,231 @@ public class MakeMultiBoot extends Activity {
         String systemImageName;
         String dataImageName;
 
-        Bundle b;
+        Bundle bundle;
 
         @Override
         protected Void doInBackground(Bundle... params) {
-            b = params[0];
+            bundle = params[0];
             inputFile = Environment.getExternalStorageDirectory()
-                    .getAbsolutePath() + "/" + b.getString("filename");
-            romName = b.getString("filename").replace(".zip", "");
+                    .getAbsolutePath() + "/" + bundle.getString("filename");
+            romName = bundle.getString("filename").replace(".zip", "");
             romExtractionDir = tempSdCardDir + romName + "/";
 
+            publishProgress("Making directories");
             new File(romExtractionDir).mkdirs();
             new File(finalOutdir + "loop-roms").mkdirs();
-            new File(dataDir + "boot.img-ramdisk").mkdirs();
 
-            publishProgress("Making directories");
+            dataImageName = bundle.getString("dataimagename");
+            systemImageName = bundle.getString("systemimagename");
 
-            dataImageName = b.getString("dataimagename");
-            systemImageName = b.getString("systemimagename");
+            boolean data = bundle.getBoolean("createdataimage");
+            boolean system = bundle.getBoolean("createsystemimage");
 
-            boolean data = b.getBoolean("createdataimage");
-            boolean system = b.getBoolean("createsystemimage");
-            
             preClean();
-            if(system)
+            if (system)
                 makeSystemImage();
-            if(data)
+            if (data)
                 makeDataImage();
             extractRom();
             remakeBootImage();
             fixUpdaterScript();
             packUpAndFinish();
-            //cleanup();
+            cleanup();
             return null;
         }
 
+        private Handler mHandler = new Handler();
+
+        private Runnable mUpdateTimeTask = new Runnable() {
+            public void run() {
+                Intent intent = new Intent(getApplicationContext(),
+                        MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+        };
+
         private void preClean() {
+            publishProgress("Running a preclean");
             deleteIfExists(finalOutdir + romName + "boot.img");
-            deleteIfExists(finalOutdir + "boot" + romName
-                    + ".sh");
+            deleteIfExists(finalOutdir + "boot" + romName + ".sh");
             deleteIfExists(finalOutdir + "boot.sh");
             deleteIfExists(finalOutdir + "boot.img");
-            deleteIfExists(finalOutdir + "loop-roms/" + romName + "-loopinstall.zip");
+            deleteIfExists(finalOutdir + "loop-roms/" + romName
+                    + "-loopinstall.zip");
         }
 
         private void packUpAndFinish() {
             publishProgress("Making ROM zip");
-            runRootCommand(dataDir + "zip -r -q " + finalOutdir + "loop-roms/"
-                    + romName + "-loopinstall.zip " + romExtractionDir + "*");
+            CommonFunctions.runRootCommands(new String[] {
+                    "cd " + romExtractionDir,
+                    dataDir + "zip -r -q " + finalOutdir + "loop-roms/"
+                            + romName + "-loopinstall.zip " + "*" });
+
             publishProgress("Creating copy of loop boot image for flashing");
-            runRootCommand("cp " + romExtractionDir + "boot.img " + finalOutdir
-                    + romName + "boot.img");
+            CommonFunctions.runRootCommand("cp " + romExtractionDir
+                    + "boot.img " + finalOutdir + romName + "boot.img");
+
+            FileWriter l;
             String m = "#!/system/bin/sh\n"
                     + "flash_image boot /sdcard/multiboot/" + romName
                     + "boot.img\n" + "reboot";
+
             publishProgress("Creating loop script file");
             try {
-                FileWriter l = new FileWriter(finalOutdir + "boot" + romName
-                        + ".sh");
+                l = new FileWriter(finalOutdir + "boot" + romName + ".sh");
                 l.write(m);
                 l.close();
             } catch (IOException e) {
+                e.printStackTrace();
             }
 
             publishProgress("Creating nand boot image");
-            runRootCommand("dd if=/dev/mtd/mtd1 of=/sdcard/multiboot/boot.img bs=4096");
+            CommonFunctions
+                    .runRootCommand("dd if=/dev/mtd/mtd1 of=/sdcard/multiboot/boot.img bs=4096");
             m = "#!/system/bin/sh\n"
                     + "flash_image boot /sdcard/multiboot/boot.img\n"
                     + "reboot";
+
             publishProgress("Creating nand script file");
             try {
-                FileWriter l = new FileWriter(finalOutdir + "boot.sh");
+                l = new FileWriter(finalOutdir + "boot.sh");
                 l.write(m);
                 l.close();
             } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
         private void fixUpdaterScript() {
-            File file = new File(romExtractionDir
-                    + "META-INF/com/google/android/updater-script");
-            publishProgress("Finding updater script format");
+            String updaterScript = romExtractionDir
+                    + "META-INF/com/google/android/updater-script";
+            String findString = null;
             try {
-                String k = null;
-                Scanner scanner = new Scanner(file);
+                Scanner scanner = new Scanner(new File(updaterScript));
                 while (scanner.hasNextLine()) {
-                    String nextline = scanner.nextLine();
-                    if (nextline
-                            .contains("format(\"yaffs2\", \"MTD\", \"system\", \"0\", \"/system\")")) {
-                        k = "/format(\"yaffs2\", \"MTD\", \"system\", \"0\", \"\\/system\");/i\\\n"
-                                + "run_program(\"\\/sbin\\/mkdir\", \"-p\", \"\\/sdcard\");\n"
-                                + "/format(\"yaffs2\", \"MTD\", \"system\", \"0\", \"\\/system\");/i\\\n"
-                                + "run_program(\"\\/sbin\\/mount\", \"-t\", \"vfat\", \"\\/dev\\/block\\/mmcblk0p1\", \"\\/sdcard\");\n"
-                                + "/format(\"yaffs2\", \"MTD\", \"system\", \"0\", \"\\/system\");/i\\\n"
-                                + "run_program(\"\\/sbin\\/losetup\", \"\\/dev\\/block\\/loop0\", \"\\/sdcard\\/multiboot\\/"
-                                + systemImageName
-                                + "\");\n"
-                                + "/format(\"yaffs2\", \"MTD\", \"system\", \"0\", \"\\/system\");/i\\\"\n"
-                                + "run_program(\"\\/sbin\\/losetup\", \"\\/dev\\/block\\/loop1\", \"\\/sdcard\\/multiboot\\/"
-                                + dataImageName
-                                + "\");\n\n"
-                                + "/format(\"yaffs2\", \"MTD\", \"system\", \"0\", \"\\/system\");/c\\\n"
-                                + "run_program(\"\\/sbin\\/losetup\", \"\\/dev\\/block\\/loop1\", \"\\/sdcard\\/multiboot\\/"
-                                + dataImageName
-                                + "\");\n\n"
-                                +
-
-                                "/mount(\"yaffs2\", \"MTD\", \"system\", \"\\/system\");/c\\\n"
-                                + "run_program(\"\\/sbin\\/mount\", \"-t\", \"ext2\", \"\\/dev\\/block\\/loop0\", \"\\/system\");\n\n"
-                                +
-
-                                "/unmount(\"\\/system\");/a\\\n"
-                                + "run_program(\"\\/sbin\\/losetup\", \"-d\", \"\\/dev\\/block\\/loop0\");\n"
-                                +
-
-                                "/unmount(\"\\/system\");/a\\\n"
-                                + "run_program(\"\\/sbin\\/losetup\", \"-d\", \"\\/dev\\/block\\/loop1\");\n";
-                        break;
-                    } else if (nextline
-                            .contains("format(\"yaffs2\", \"MTD\", \"system\", \"0\")")) {
-                        k = "/format(\"yaffs2\", \"MTD\", \"system\", \"0\");/i\\\n"
-                                + "run_program(\"\\/sbin\\/mkdir\", \"-p\", \"\\/sdcard\");\n"
-                                + "/format(\"yaffs2\", \"MTD\", \"system\", \"0\");/i\\\n"
-                                + "run_program(\"\\/sbin\\/mount\", \"-t\", \"vfat\", \"\\/dev\\/block\\/mmcblk0p1\", \"\\/sdcard\");\n"
-                                + "/format(\"yaffs2\", \"MTD\", \"system\", \"0\");/i\\\n"
-                                + "run_program(\"\\/sbin\\/losetup\", \"\\/dev\\/block\\/loop0\", \"\\/sdcard\\/multiboot\\/"
-                                + systemImageName
-                                + "\");\n"
-                                + "/format(\"yaffs2\", \"MTD\", \"system\", \"0\");/i\\\"\n"
-                                + "run_program(\"\\/sbin\\/losetup\", \"\\/dev\\/block\\/loop1\", \"\\/sdcard\\/multiboot\\/"
-                                + dataImageName
-                                + "\");\n\n"
-                                +
-
-                                "/format(\"yaffs2\", \"MTD\", \"system\", \"0\");/c\\\n"
-                                + "run_program(\"\\/sbin\\/mke2fs\", \"-T\", \"ext2\", \"\\/dev\\/block\\/loop0\");\n\n"
-                                +
-
-                                "/mount(\"yaffs2\", \"MTD\", \"system\", \"\\/system\");/c\\\n"
-                                + "run_program(\"\\/sbin\\/mount\", \"-t\", \"ext2\", \"\\/dev\\/block\\/loop0\", \"\\/system\");\n\n"
-                                +
-
-                                "/unmount(\"\\/system\");/a\\\n"
-                                + "run_program(\"\\/sbin\\/losetup\", \"-d\", \"\\/dev\\/block\\/loop0\");\n"
-                                +
-
-                                "/unmount(\"\\/system\");/a\\\n"
-                                + "run_program(\"\\/sbin\\/losetup\", \"-d\", \"\\/dev\\/block\\/loop1\");\n";
-                        break;
-                    } else if (nextline
-                            .contains("format(\"yaffs2\", \"MTD\", \"system\"")) {
-                        k = "/format(\"yaffs2\", \"MTD\", \"system\");/i\\\n"
-                                + "run_program(\"\\/sbin\\/mkdir\", \"-p\", \"\\/sdcard\");\n"
-                                + "/format(\"yaffs2\", \"MTD\", \"system\");/i\\\n"
-                                + "run_program(\"\\/sbin\\/mount\", \"-t\", \"vfat\", \"\\/dev\\/block\\/mmcblk0p1\", \"\\/sdcard\");\n"
-                                + "/format(\"yaffs2\", \"MTD\", \"system\");/i\\\n"
-                                + "run_program(\"\\/sbin\\/losetup\", \"\\/dev\\/block\\/loop0\", \"\\/sdcard\\/multiboot\\/"
-                                + systemImageName
-                                + "\");\n"
-                                + "/format(\"yaffs2\", \"MTD\", \"system\");/i\\\"\n"
-                                + "run_program(\"\\/sbin\\/losetup\", \"\\/dev\\/block\\/loop1\", \"\\/sdcard\\/multiboot\\/"
-                                + dataImageName
-                                + "\");\n\n"
-                                +
-
-                                "/format(\"yaffs2\", \"MTD\", \"system\");/c\\\n"
-                                + "run_program(\"\\/sbin\\/mke2fs\", \"-T\", \"ext2\", \"\\/dev\\/block\\/loop0\");\n\n"
-                                +
-
-                                "/mount(\"yaffs2\", \"MTD\", \"system\", \"\\/system\");/c\\\n"
-                                + "run_program(\"\\/sbin\\/mount\", \"-t\", \"ext2\", \"\\/dev\\/block\\/loop0\", \"\\/system\");\n\n"
-                                +
-
-                                "/unmount(\"\\/system\");/a\\\n"
-                                + "run_program(\"\\/sbin\\/losetup\", \"-d\", \"\\/dev\\/block\\/loop0\");\n"
-                                +
-
-                                "/unmount(\"\\/system\");/a\\\n"
-                                + "run_program(\"\\/sbin\\/losetup\", \"-d\", \"\\/dev\\/block\\/loop1\");\n";
-                        break;
-                    } else if (nextline.contains("format(\"MTD\", \"system\"")) {
-                        k = "/format(\"MTD\", \"system\");/i\\\n"
-                                + "run_program(\"\\/sbin\\/mkdir\", \"-p\", \"\\/sdcard\");\n"
-                                + "/format(\"MTD\", \"system\");/i\\\n"
-                                + "run_program(\"\\/sbin\\/mount\", \"-t\", \"vfat\", \"\\/dev\\/block\\/mmcblk0p1\", \"\\/sdcard\");\n"
-                                + "/format(\"MTD\", \"system\");/i\\\n"
-                                + "run_program(\"\\/sbin\\/losetup\", \"\\/dev\\/block\\/loop0\", \"\\/sdcard\\/multiboot\\/"
-                                + systemImageName
-                                + "\");\n"
-                                + "/format(\"MTD\", \"system\");/i\\\"\n"
-                                + "run_program(\"\\/sbin\\/losetup\", \"\\/dev\\/block\\/loop1\", \"\\/sdcard\\/multiboot\\/"
-                                + dataImageName
-                                + "\");\n\n"
-                                +
-                                "/format(\"MTD\", \"system\");/c\\\n"
-                                + "run_program(\"\\/sbin\\/mke2fs\", \"-T\", \"ext2\", \"\\/dev\\/block\\/loop0\");\n\n"
-                                +
-
-                                "/mount(\"yaffs2\", \"MTD\", \"system\", \"\\/system\");/c\\\n"
-                                + "run_program(\"\\/sbin\\/mount\", \"-t\", \"ext2\", \"\\/dev\\/block\\/loop0\", \"\\/system\");\n\n"
-                                +
-
-                                "/unmount(\"\\/system\");/a\\\n"
-                                + "run_program(\"\\/sbin\\/losetup\", \"-d\", \"\\/dev\\/block\\/loop0\");\n"
-                                +
-
-                                "/unmount(\"\\/system\");/a\\\n"
-                                + "run_program(\"\\/sbin\\/losetup\", \"-d\", \"\\/dev\\/block\\/loop1\");\n";
+                    findString = scanner.nextLine();
+                    if (findString.contains("format(")
+                            && (findString.contains("\"MTD\", \"system\""))) {
                         break;
                     }
                 }
-                publishProgress("Creating find and replace file");
-                FileWriter l = new FileWriter(dataDir + "upd.sed");
-                l.write(k);
-                l.close();
             } catch (FileNotFoundException e) {
-            } catch (IOException e1) {
+                e.printStackTrace();
             }
             publishProgress("Editing updater script");
-            runRootCommand("sed -f " + dataDir + "upd.sed < "
-                    + romExtractionDir
-                    + "META-INF/com/google/android/updater-script > "
-                    + romExtractionDir
-                    + "META-INF/com/google/android/updater-script.fix");
-            deleteIfExists(dataDir + "upd.sed");
+            findAndReplaceInFile(updaterScript, findString, "");
+            findAndReplaceInFile(
+                    updaterScript,
+                    "mount(\"yaffs2\", \"MTD\", \"system\", \"/system\");",
+                    "run_program(\"/sbin/losetup\", \"/dev/block/loop0\", \"/sdcard/multiboot/"
+                            + systemImageName
+                            + "\");\n"
+                            + "run_program(\"/sbin/mke2fs\", \"-T\", \"ext2\", \"/dev/block/loop0\");\n"
+                            + "run_program(\"/sbin/mount\", \"-t\", \"ext2\", \"/dev/block/loop0\", \"/system\");");
+            findAndReplaceInFile(
+                    updaterScript,
+                    "unmount(\"/system\");",
+                    "unmount(\"/system\");\n"
+                            + "run_program(\"/sbin/losetup\", \"-d\", \"/dev/block/loop0\");");
 
-            publishProgress("Replacing edited updater script");
-            runRootCommand("mv " + romExtractionDir
-                    + "META-INF/com/google/android/updater-script.fix "
-                    + romExtractionDir
-                    + "META-INF/com/google/android/updater-script");
+        }
+
+        private void findAndReplaceInFile(String fileName, String findString,
+                String replaceString) {
+            try {
+                Scanner scanner = new Scanner(new File(fileName));
+                FileWriter s = new FileWriter(new File(fileName + ".fix"));
+                while (scanner.hasNextLine()) {
+                    String nextLine = scanner.nextLine();
+                    if (nextLine.contains(findString))
+                        s.write(replaceString + "\n");
+                    else
+                        s.write(nextLine + "\n");
+                }
+                s.close();
+                CommonFunctions.runRootCommand("mv " + fileName + ".fix "
+                        + fileName);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         private void remakeBootImage() {
-            final String jellybeanReplace = "/on fs/a\\\n"
-                    + "mkdir -p \\/storage\\/sdcard0\n\n"
-                    + "/on fs/a\\\n"
-                    + "mount vfat \\/dev\\/block\\/mmcblk0p1 \\/storage\\/sdcard0\n\n"
-                    + "/mount yaffs2 mtd@system \\/system ro remount/c\\\n"
-                    + "mount ext2 loop@\\/storage\\/sdcard0\\/multiboot\\/"
-                    + systemImageName + " \\/system ro remount\n\n"
-                    + "/mount yaffs2 mtd@system \\/system/c\\n"
-                    + "mount ext2 loop@\\/storage\\/sdcard0\\/multiboot\\/"
-                    + systemImageName + " \\/system\n\n"
-                    + "/mount yaffs2 mtd@userdata \\/data nosuid nodev/c\\\n"
-                    + "mount ext2 loop@\\/storage\\/sdcard0\\/multiboot\\/"
-                    + dataImageName + " \\/data nosuid nodev\n";
-
-            final String otherReplace = "/on fs/a\\\n"
-                    + "mkdir -p \\/mnt\\/sdcard\n\n"
-                    + "/on fs/a\\\n"
-                    + "mount vfat \\/dev\\/block\\/mmcblk0p1 \\/mnt\\/sdcard\n\n"
-                    + "/mount yaffs2 mtd@system \\/system ro remount/c\\\n"
-                    + "mount ext2 loop@\\/mnt\\/sdcard\\/multiboot\\/"
-                    + systemImageName + " \\/system ro remount\n\n"
-                    + "/mount yaffs2 mtd@system \\/system/c\\n"
-                    + "mount ext2 loop@\\/mnt\\/sdcard\\/multiboot\\/"
-                    + systemImageName + " \\/system\n\n"
-                    + "/mount yaffs2 mtd@userdata \\/data nosuid nodev/c\\\n"
-                    + "mount ext2 loop@\\/mnt\\/sdcard\\/multiboot\\/"
-                    + dataImageName + " \\/data nosuid nodev\n";
-
             publishProgress("Moving boot image");
-            runRootCommand("mv " + romExtractionDir + "boot.img " + dataDir
-                    + "boot.img");
+            CommonFunctions.runRootCommand("cp " + romExtractionDir
+                    + "boot.img " + dataDir + "boot.img");
+            deleteIfExists(romExtractionDir + "boot.img");
 
-            publishProgress("Getting info about boot.img");
+            publishProgress("Getting boot.img parameters");
             String base = "0x"
-                    + runRootCommand(
-                            "od -A n -h -j 34 -N 2 " + dataDir
-                                    + "boot.img|sed 's/ //g'").trim() + "0000";
+                    + CommonFunctions.runRootCommand(
+                            dataDir + "busybox od -A n -h -j 34 -N 2 "
+                                    + dataDir + "boot.img").trim() + "0000";
             String commandLine = "\""
-                    + runRootCommand(
-                            "od -A n --strings -j 64 -N 512 " + dataDir
-                                    + "boot.img").trim() + "\"";
+                    + CommonFunctions.runRootCommand(
+                            dataDir + "busybox od -A n --strings -j 64 -N 512 "
+                                    + dataDir + "boot.img").trim() + "\"";
 
             publishProgress("Extracting kernel");
-            runRootCommands(new String[] { "cd " + dataDir,
+            CommonFunctions.runRootCommands(new String[] { "cd " + dataDir,
                     "./extract-kernel.pl " + dataDir + "boot.img" });
-            runRootCommand("mv " + dataDir + "boot.img-kernel " + dataDir
-                    + "zImage");
 
             publishProgress("Extracting ramdisk");
-            runRootCommands(new String[] { "cd " + dataDir,
+            CommonFunctions.runRootCommands(new String[] { "cd " + dataDir,
                     "./extract-ramdisk.pl " + dataDir + "boot.img" });
-            runRootCommands(new String[] {
+            CommonFunctions.runRootCommands(new String[] {
                     "cd " + dataDir + "boot.img-ramdisk",
                     "gunzip -c ../boot.img-ramdisk.cpio.gz | cpio -i" });
 
             deleteIfExists(dataDir + "boot.img");
 
-            publishProgress("Making find and replace file");
-            try {
-                FileWriter k = new FileWriter(dataDir + "init.sed");
-                if (Build.VERSION.SDK_INT >= 16)
-                    k.write(jellybeanReplace);
-                else
-                    k.write(otherReplace);
-                k.close();
-            } catch (IOException e1) {
-            }
+            CommonFunctions.runRootCommand("cp " + dataDir
+                    + "boot.img-ramdisk/init.rc " + tempSdCardDir + "init.rc");
+            deleteIfExists(dataDir + "boot.img-ramdisk/init.rc");
 
-            publishProgress("Editing init.rc for mounting loop systems");
-            runRootCommand("sed -f " + dataDir + "init.sed < " + dataDir
-                    + "boot.img-ramdisk/init.rc > " + dataDir
-                    + "boot.img-ramdisk/init.rc.fix");
-            runRootCommand("mv " + dataDir + "boot.img-ramdisk/init.rc.fix "
+            publishProgress("Editing init.rc");
+
+            findAndReplaceInFile(tempSdCardDir + "init.rc", "on fs", "on fs\n"
+                    + "    mkdir -p /storage/sdcard0\n"
+                    + "    mount vfat /dev/block/mmcblk0p1 /storage/sdcard0");
+
+            findAndReplaceInFile(tempSdCardDir + "init.rc",
+                    "mount yaffs2 mtd@system /system ro remount",
+                    "    mount ext2 loop@/storage/sdcard0/multiboot/"
+                            + systemImageName + " /system ro remount");
+
+            findAndReplaceInFile(tempSdCardDir + "init.rc",
+                    "mount yaffs2 mtd@system /system",
+                    "    mount ext2 loop@/storage/sdcard0/multiboot/"
+                            + systemImageName + " /system");
+
+            findAndReplaceInFile(tempSdCardDir + "init.rc",
+                    "mount yaffs2 mtd@userdata /data nosuid nodev",
+                    "    mount ext2 loop@/storage/sdcard0/multiboot/"
+                            + dataImageName + " /data nosuid nodev");
+
+            CommonFunctions.runRootCommand("cp " + tempSdCardDir + "init.rc "
                     + dataDir + "boot.img-ramdisk/init.rc");
+            deleteIfExists(tempSdCardDir + "init.rc");
 
             publishProgress("Making compressed ramdisk");
-            runRootCommand(dataDir + "mkbootfs " + dataDir
+            CommonFunctions.runRootCommand(dataDir + "mkbootfs " + dataDir
                     + "boot.img-ramdisk | gzip > " + dataDir + "ramdisk.gz");
 
-            publishProgress("Making edited boot image");
-            runRootCommand(dataDir + "mkbootimg --cmdline " + commandLine
-                    + " --base " + base + " --kernel " + dataDir
-                    + "zImage --ramdisk " + dataDir + "ramdisk.gz -o "
+            publishProgress("Making boot image");
+            CommonFunctions.runRootCommand(dataDir + "mkbootimg --cmdline "
+                    + commandLine + " --base " + base + " --kernel " + dataDir
+                    + "boot.img-kernel --ramdisk " + dataDir + "ramdisk.gz -o "
                     + romExtractionDir + "boot.img");
         }
 
         private void extractRom() {
             publishProgress("Extracting ROM");
-            runRootCommand("unzip -q " + inputFile + " -d " + romExtractionDir);
+            CommonFunctions.runRootCommand(dataDir + "busybox unzip -q "
+                    + inputFile + " -d " + romExtractionDir);
         }
 
         private void cleanup() {
@@ -379,99 +273,58 @@ public class MakeMultiBoot extends Activity {
             deleteIfExists(tempSdCardDir);
             deleteIfExists(dataDir);
             publishProgress("Finished!");
+            publishProgress("gotomain");
         }
 
         private void makeDataImage() {
             String dataoutput = finalOutdir + dataImageName;
-            int datasize = Integer.parseInt(b.getString("dataimagesize")) * 1024;
+            int datasize = Integer.parseInt(bundle.getString("dataimagesize")) * 1024;
             publishProgress("Making data image");
-            String losetupLocation = runRootCommand("losetup -f").trim();
-            runRootCommand("dd if=/dev/zero of=" + dataoutput
+            String losetupLocation = CommonFunctions.runRootCommand(
+                    "losetup -f").trim();
+            CommonFunctions.runRootCommand("dd if=/dev/zero of=" + dataoutput
                     + " bs=1024 count=" + datasize);
-            runRootCommand("losetup " + losetupLocation + " " + dataoutput);
-            runRootCommand("mke2fs -t ext2 " + losetupLocation);
+            CommonFunctions.runRootCommand("losetup " + losetupLocation + " "
+                    + dataoutput);
+            CommonFunctions.runRootCommand("mke2fs -t ext2 " + losetupLocation);
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
             }
-            runRootCommand("losetup -d " + losetupLocation);
+            CommonFunctions.runRootCommand("losetup -d " + losetupLocation);
         }
 
         private void makeSystemImage() {
             String systemoutput = finalOutdir + systemImageName;
-            int systemsize = Integer.parseInt(b.getString("systemimagesize")) * 1024;
+            int systemsize = Integer.parseInt(bundle
+                    .getString("systemimagesize")) * 1024;
             publishProgress("Making system image");
-            String losetupLocation = runRootCommand("losetup -f").trim();
-            runRootCommand("dd if=/dev/zero of=" + systemoutput
+            String losetupLocation = CommonFunctions.runRootCommand(
+                    "losetup -f").trim();
+            CommonFunctions.runRootCommand("dd if=/dev/zero of=" + systemoutput
                     + " bs=1024 count=" + systemsize);
-            runRootCommand("losetup " + losetupLocation + " " + systemoutput);
-            runRootCommand("mke2fs -t ext2 " + losetupLocation);
+            CommonFunctions.runRootCommand("losetup " + losetupLocation + " "
+                    + systemoutput);
+            CommonFunctions.runRootCommand("mke2fs -t ext2 " + losetupLocation);
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
             }
-            runRootCommand("losetup -d " + losetupLocation);
-        }
-
-        private String runRootCommand(String cmd) {
-            Process p = null;
-            StringBuilder sb = new StringBuilder();
-            Log.d("Multiboot", cmd);
-            try {
-                p = Runtime.getRuntime().exec("su");
-                BufferedReader br = new BufferedReader(new InputStreamReader(
-                        p.getInputStream()));
-                DataOutputStream os = new DataOutputStream(p.getOutputStream());
-                os.writeBytes(cmd + "\n");
-                os.writeBytes("exit\n");
-                os.flush();
-                String read = br.readLine();
-                while (read != null) {
-                    sb.append(read + '\n');
-                    read = br.readLine();
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return sb.toString();
-        }
-
-        private String runRootCommands(String[] cmd) {
-            Process p = null;
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < cmd.length; i++)
-                Log.d("Multiboot", cmd[i]);
-            try {
-                p = Runtime.getRuntime().exec("su");
-                BufferedReader br = new BufferedReader(new InputStreamReader(
-                        p.getInputStream()));
-                DataOutputStream os = new DataOutputStream(p.getOutputStream());
-                for (int i = 0; i < cmd.length; i++)
-                    os.writeBytes(cmd[i] + "\n");
-                os.writeBytes("exit\n");
-                os.flush();
-                String read = br.readLine();
-                while (read != null) {
-                    sb.append(read + '\n');
-                    read = br.readLine();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return sb.toString();
+            CommonFunctions.runRootCommand("losetup -d " + losetupLocation);
         }
 
         public void deleteIfExists(String fileName) {
-            File file = new File(fileName);
-            if (file.exists())
-                runRootCommand("rm -rf " + fileName);
+            if (new File(fileName).exists())
+                CommonFunctions.runRootCommand("rm -rf " + fileName);
         }
 
         @Override
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
-            WriteOutput(values[0]);
+            if (values[0] == "gotomain")
+                mHandler.postDelayed(mUpdateTimeTask, 5000);
+            else
+                WriteOutput(values[0]);
         }
 
         public void WriteOutput(String paramString) {

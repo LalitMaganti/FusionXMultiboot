@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 public class Finalisation extends Activity {
     String mChosen;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,13 +23,11 @@ public class Finalisation extends Activity {
         Bundle b = getIntent().getExtras();
         boolean data = b.getBoolean("createdataimage");
         boolean system = b.getBoolean("createsystemimage");
-        if (data == true)
-        {
+        if (data == true) {
             findViewById(R.id.edtData).setVisibility(4);
             findViewById(R.id.txtData).setVisibility(4);
         }
-        if (system == true)
-        {
+        if (system == true) {
             findViewById(R.id.edtSystem).setVisibility(4);
             findViewById(R.id.txtSystem).setVisibility(4);
         }
@@ -40,24 +39,26 @@ public class Finalisation extends Activity {
                 return filename.endsWith(".zip");
             }
         };
-        File mPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
+        File mPath = new File(Environment.getExternalStorageDirectory()
+                .getAbsolutePath());
         final String[] mFileList = mPath.list(filter);
-        
+
         Builder builder = new Builder(this);
         builder.setTitle("Choose your ROM");
-        builder.setItems(mPath.list(filter), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                File sel = new File(mFileList[which]); 
-                if (!(sel.isDirectory()))
-                {
-                    mChosen = mFileList[which];
-                    TextView k = (TextView) findViewById(R.id.txtRom);
-                    k.setText(mChosen);
-                }
-            }
-        });
+        builder.setItems(mPath.list(filter),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        File sel = new File(mFileList[which]);
+                        if (!(sel.isDirectory())) {
+                            mChosen = mFileList[which];
+                            TextView k = (TextView) findViewById(R.id.txtRom);
+                            k.setText(mChosen);
+                        }
+                    }
+                });
         builder.show();
     }
+
     public void finish(View view) {
         Intent intent = new Intent(this, MakeMultiBoot.class);
         intent.putExtra("filename", mChosen);
@@ -65,10 +66,15 @@ public class Finalisation extends Activity {
         boolean data = b.getBoolean("createdataimage");
         boolean system = b.getBoolean("createsystemimage");
         if (data == false)
-            intent.putExtra("dataimagename", ((EditText) findViewById(R.id.edtData)).getText().toString());
+            intent.putExtra("dataimagename",
+                    ((EditText) findViewById(R.id.edtData)).getText()
+                            .toString());
         if (system == false)
-            intent.putExtra("systemimagename", ((EditText) findViewById(R.id.edtSystem)).getText().toString());
+            intent.putExtra("systemimagename",
+                    ((EditText) findViewById(R.id.edtSystem)).getText()
+                            .toString());
         intent.putExtras(getIntent().getExtras());
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
 }

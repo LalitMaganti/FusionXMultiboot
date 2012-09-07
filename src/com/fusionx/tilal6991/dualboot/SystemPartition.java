@@ -14,20 +14,26 @@ public class SystemPartition extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_system_partition);
     }
+
     public void next(View v) {
         Intent intent = new Intent(this, DataPartition.class);
-        boolean checked = ((CheckBox) (findViewById(R.id.checkBox1))).isChecked();
+        boolean checked = ((CheckBox) (findViewById(R.id.checkBox1)))
+                .isChecked();
         intent.putExtra("createsystemimage", checked);
-        if (checked)
-        {
-            intent.putExtra("systemimagename", ((EditText) findViewById(R.id.editText2)).getText().toString());
-            intent.putExtra("systemimagesize", ((EditText) findViewById(R.id.editText1)).getText().toString());
+        if (checked) {
+            intent.putExtra("systemimagename",
+                    ((EditText) findViewById(R.id.editText2)).getText()
+                            .toString());
+            intent.putExtra("systemimagesize",
+                    ((EditText) findViewById(R.id.editText1)).getText()
+                            .toString());
         }
         startActivity(intent);
     }
+
     public void changeEnable(View view) {
         int visible;
-        if(!(((CheckBox)view).isChecked()))
+        if (!(((CheckBox) view).isChecked()))
             visible = 4;
         else
             visible = 0;
