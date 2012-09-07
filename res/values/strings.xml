@@ -1,12 +1,11 @@
 <resources>
-
-    <string name="app_name">ZTE MultiBoot</string>
-    <string name="title_activity_main">ZTE MultiBoot</string>
+    <string name="app_name">FusionX Multiboot</string>
+    <string name="title_activity_main">FusionX Multiboot</string>
     <string name="title_activity_make_multi_boot_rom">Make Multiboot Rom</string>
-    <string name="title_activity_system_partition">System Data Image</string>
+    <string name="title_activity_system_partition">System Image</string>
     <string name="title_activity_data_partition">Data Image</string>
     <string name="title_activity_finalisation">Finalisation</string>
-    <string name="title_activity_make_multi_boot">Make MultiBoot</string>
+    <string name="title_activity_make_multi_boot">Making Multiboot Rom</string>
     <string name="button_next">Next</string>
     <string name="button_finish">Finish</string>
 </resources>

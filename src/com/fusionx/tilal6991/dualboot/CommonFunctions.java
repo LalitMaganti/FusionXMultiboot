@@ -42,8 +42,8 @@ public class CommonFunctions {
             BufferedReader br = new BufferedReader(new InputStreamReader(
                     p.getInputStream()));
             DataOutputStream os = new DataOutputStream(p.getOutputStream());
-            for (int i = 0; i < cmd.length; i++)
-                os.writeBytes(cmd[i] + "\n");
+            for (String command : cmd)
+                os.writeBytes(command + "\n");
             os.writeBytes("exit\n");
             os.flush();
             String read = br.readLine();
@@ -54,13 +54,13 @@ public class CommonFunctions {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        for (int i = 0; i < cmd.length; i++)
-            Log.d("Mutiboot", cmd[i]);
+        for (String command : cmd)
+            Log.d("Mutiboot", command);
         Log.d("Mutiboot", sb.toString());
         return sb.toString();
     }
 
-    public static void deleteIfExists(String fileName) {
+    static void deleteIfExists(String fileName) {
         if (new File(fileName).exists())
             runRootCommand("rm -rf " + fileName);
     }

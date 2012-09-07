@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
@@ -16,13 +17,7 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        CommonFunctions
-                .deleteIfExists("/data/data/com.fusionx.tilal6991.dualboot/files/");
-        writeRawResource(R.raw.raw, "raw.tar");
-        CommonFunctions
-                .runRootCommand("tar -zxvf /data/data/com.fusionx.tilal6991.dualboot/files/raw.tar -C /data/data/com.fusionx.tilal6991.dualboot/files/");
-        CommonFunctions
-                .runRootCommand("chmod -R 777 /data/data/com.fusionx.tilal6991.dualboot/files/*");
+        new CleaupAndExtract().execute(null, null, null);
     }
 
     private void writeRawResource(int resource, String name) {
@@ -52,5 +47,19 @@ public class MainActivity extends Activity {
     public void createRom(View view) {
         Intent intent = new Intent(this, SystemPartition.class);
         startActivity(intent);
+    }
+
+    private class CleaupAndExtract extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... arg0) {
+            CommonFunctions
+                    .deleteIfExists("/data/data/com.fusionx.tilal6991.dualboot/files/");
+            writeRawResource(R.raw.raw, "raw.tar");
+            CommonFunctions
+                    .runRootCommand("tar -zxvf /data/data/com.fusionx.tilal6991.dualboot/files/raw.tar -C /data/data/com.fusionx.tilal6991.dualboot/files/");
+            CommonFunctions
+                    .runRootCommand("chmod -R 777 /data/data/com.fusionx.tilal6991.dualboot/files/*");
+            return null;
+        }
     }
 }

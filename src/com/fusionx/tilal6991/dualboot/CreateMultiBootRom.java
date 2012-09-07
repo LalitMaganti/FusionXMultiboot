@@ -30,9 +30,10 @@ public class CreateMultiBootRom extends Activity {
 
     public class CreateMultibootRomAsync extends
             AsyncTask<Bundle, String, Void> {
-        String tempSdCardDir = Environment.getExternalStorageDirectory()
-                .getAbsolutePath() + "/tempMultiboot/";
-        String finalOutdir = Environment.getExternalStorageDirectory()
+        final String externalPath = Environment.getExternalStorageDirectory()
+                .getAbsolutePath();
+        final String tempSdCardDir = externalPath + "/tempMultiboot/";
+        final String finalOutdir = Environment.getExternalStorageDirectory()
                 .getAbsolutePath() + "/multiboot/";
         final static String dataDir = "/data/data/com.fusionx.tilal6991.dualboot/files/";
 
@@ -56,6 +57,7 @@ public class CreateMultiBootRom extends Activity {
             new File(romExtractionDir).mkdirs();
             new File(finalOutdir + "loop-roms").mkdirs();
 
+            publishProgress("Getting data from wizard");
             dataImageName = bundle.getString("dataimagename");
             systemImageName = bundle.getString("systemimagename");
 
@@ -95,6 +97,7 @@ public class CreateMultiBootRom extends Activity {
             CommonFunctions.deleteIfExists(finalOutdir + "boot.img");
             CommonFunctions.deleteIfExists(finalOutdir + "loop-roms/" + romName
                     + "-loopinstall.zip");
+            CommonFunctions.deleteIfExists(tempSdCardDir);
         }
 
         private void packUpAndFinish() {
@@ -108,32 +111,29 @@ public class CreateMultiBootRom extends Activity {
             CommonFunctions.runRootCommand("cp " + romExtractionDir
                     + "boot.img " + finalOutdir + romName + "boot.img");
 
-            FileWriter fileWriter;
             String shFile = "#!/system/bin/sh\n"
                     + "flash_image boot /sdcard/multiboot/" + romName
                     + "boot.img\n" + "reboot";
 
             publishProgress("Creating loop script file");
-            try {
-                fileWriter = new FileWriter(finalOutdir + "boot" + romName
-                        + ".sh");
-                fileWriter.write(shFile);
-                fileWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            writeToFile(finalOutdir + "boot" + romName + ".sh", shFile);
 
             publishProgress("Creating nand boot image");
             CommonFunctions
                     .runRootCommand("dd if=/dev/mtd/mtd1 of=/sdcard/multiboot/boot.img bs=4096");
+
             shFile = "#!/system/bin/sh\n"
                     + "flash_image boot /sdcard/multiboot/boot.img\n"
                     + "reboot";
 
             publishProgress("Creating nand script file");
+            writeToFile(finalOutdir + "boot.sh", shFile);
+        }
+
+        private void writeToFile(String fileName, String stringToWrite) {
             try {
-                fileWriter = new FileWriter(finalOutdir + "boot.sh");
-                fileWriter.write(shFile);
+                FileWriter fileWriter = new FileWriter(fileName);
+                fileWriter.write(stringToWrite);
                 fileWriter.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -286,38 +286,32 @@ public class CreateMultiBootRom extends Activity {
         }
 
         private void makeDataImage() {
-            String dataoutput = finalOutdir + dataImageName;
-            int datasize = Integer.parseInt(bundle.getString("dataimagesize")) * 1024;
             publishProgress("Making data image");
-            String losetupLocation = CommonFunctions.runRootCommand(
-                    "losetup -f").trim();
-            CommonFunctions.runRootCommand("dd if=/dev/zero of=" + dataoutput
-                    + " bs=1024 count=" + datasize);
-            CommonFunctions.runRootCommand("losetup " + losetupLocation + " "
-                    + dataoutput);
-            CommonFunctions.runRootCommand("mke2fs -t ext2 " + losetupLocation);
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-            }
-            CommonFunctions.runRootCommand("losetup -d " + losetupLocation);
+            String dataOutput = finalOutdir + dataImageName;
+            int dataSize = Integer.parseInt(bundle.getString("dataimagesize")) * 1024;
+            makeImage(dataOutput, dataSize);
         }
 
         private void makeSystemImage() {
-            String systemoutput = finalOutdir + systemImageName;
-            int systemsize = Integer.parseInt(bundle
-                    .getString("systemimagesize")) * 1024;
             publishProgress("Making system image");
+            String systemOutput = finalOutdir + systemImageName;
+            int systemSize = Integer.parseInt(bundle
+                    .getString("systemimagesize")) * 1024;
+            makeImage(systemOutput, systemSize);
+        }
+
+        private void makeImage(String imageOutput, int imageSize) {
             String losetupLocation = CommonFunctions.runRootCommand(
                     "losetup -f").trim();
-            CommonFunctions.runRootCommand("dd if=/dev/zero of=" + systemoutput
-                    + " bs=1024 count=" + systemsize);
+            CommonFunctions.runRootCommand("dd if=/dev/zero of=" + imageOutput
+                    + " bs=1024 count=" + imageSize);
             CommonFunctions.runRootCommand("losetup " + losetupLocation + " "
-                    + systemoutput);
+                    + imageOutput);
             CommonFunctions.runRootCommand("mke2fs -t ext2 " + losetupLocation);
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
+                e.getStackTrace();
             }
             CommonFunctions.runRootCommand("losetup -d " + losetupLocation);
         }

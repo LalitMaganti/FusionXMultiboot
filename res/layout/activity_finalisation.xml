@@ -20,6 +20,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:onClick="finish"
+        android:enabled="false"
         android:text="Finish Setup" />
 
     <EditText

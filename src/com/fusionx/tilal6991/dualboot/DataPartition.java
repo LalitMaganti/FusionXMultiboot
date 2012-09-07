@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.TextView;
 
 public class DataPartition extends Activity {
     @Override
@@ -35,13 +34,13 @@ public class DataPartition extends Activity {
 
     public void changeEnable(View view) {
         int visible;
-        if (!(((CheckBox) view).isChecked()))
+        if (!((CheckBox) view).isChecked())
             visible = 4;
         else
             visible = 0;
-        ((EditText) findViewById(R.id.editText1)).setVisibility(visible);
-        ((EditText) findViewById(R.id.editText2)).setVisibility(visible);
-        ((TextView) findViewById(R.id.textView1)).setVisibility(visible);
-        ((TextView) findViewById(R.id.textView2)).setVisibility(visible);
+        findViewById(R.id.editText1).setVisibility(visible);
+        findViewById(R.id.editText2).setVisibility(visible);
+        findViewById(R.id.textView1).setVisibility(visible);
+        findViewById(R.id.textView2).setVisibility(visible);
     }
 }

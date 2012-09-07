@@ -10,6 +10,7 @@ import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -53,6 +54,8 @@ public class Finalisation extends Activity {
                             mChosen = mFileList[which];
                             TextView k = (TextView) findViewById(R.id.txtRom);
                             k.setText(mChosen);
+                            Button l = (Button) findViewById(R.id.button1);
+                            l.setEnabled(true);
                         }
                     }
                 });

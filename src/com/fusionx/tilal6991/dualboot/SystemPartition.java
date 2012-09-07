@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.TextView;
 
 public class SystemPartition extends Activity {
     @Override
@@ -38,9 +37,9 @@ public class SystemPartition extends Activity {
             visible = 4;
         else
             visible = 0;
-        ((EditText) findViewById(R.id.editText1)).setVisibility(visible);
-        ((EditText) findViewById(R.id.editText2)).setVisibility(visible);
-        ((TextView) findViewById(R.id.textView1)).setVisibility(visible);
-        ((TextView) findViewById(R.id.textView2)).setVisibility(visible);
+        findViewById(R.id.editText1).setVisibility(visible);
+        findViewById(R.id.editText2).setVisibility(visible);
+        findViewById(R.id.textView1).setVisibility(visible);
+        findViewById(R.id.textView2).setVisibility(visible);
     }
 }
