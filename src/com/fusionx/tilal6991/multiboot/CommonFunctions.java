@@ -11,14 +11,21 @@ import android.util.Log;
 public class CommonFunctions {
     static final String TAG = "FusionXMultiboot";
 
-    static String runRootCommand(String cmd) {
+    static void deleteIfExists(final String fileName) {
+        if (new File(fileName).exists()) {
+            runRootCommand("rm -rf " + fileName);
+        }
+    }
+
+    static String runRootCommand(final String cmd) {
         final StringBuilder sb = new StringBuilder();
         Process p = null;
         try {
             p = Runtime.getRuntime().exec("su");
-            BufferedReader br = new BufferedReader(new InputStreamReader(
+            final BufferedReader br = new BufferedReader(new InputStreamReader(
                     p.getInputStream()));
-            DataOutputStream os = new DataOutputStream(p.getOutputStream());
+            final DataOutputStream os = new DataOutputStream(
+                    p.getOutputStream());
             os.writeBytes(cmd + "\n");
             os.writeBytes("exit\n");
             os.flush();
@@ -27,7 +34,7 @@ public class CommonFunctions {
                 sb.append(read + '\n');
                 read = br.readLine();
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
         Log.d(TAG, cmd);
@@ -35,16 +42,18 @@ public class CommonFunctions {
         return sb.toString();
     }
 
-    static String runRootCommands(String[] cmd) {
+    static String runRootCommands(final String[] cmd) {
         final StringBuilder sb = new StringBuilder();
         Process p = null;
         try {
             p = Runtime.getRuntime().exec("su");
-            BufferedReader br = new BufferedReader(new InputStreamReader(
+            final BufferedReader br = new BufferedReader(new InputStreamReader(
                     p.getInputStream()));
-            DataOutputStream os = new DataOutputStream(p.getOutputStream());
-            for (String command : cmd)
+            final DataOutputStream os = new DataOutputStream(
+                    p.getOutputStream());
+            for (final String command : cmd) {
                 os.writeBytes(command + "\n");
+            }
             os.writeBytes("exit\n");
             os.flush();
             String read = br.readLine();
@@ -52,17 +61,13 @@ public class CommonFunctions {
                 sb.append(read + '\n');
                 read = br.readLine();
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
-        for (String command : cmd)
+        for (final String command : cmd) {
             Log.d(TAG, command);
+        }
         Log.d(TAG, sb.toString());
         return sb.toString();
-    }
-
-    static void deleteIfExists(String fileName) {
-        if (new File(fileName).exists())
-            runRootCommand("rm -rf " + fileName);
     }
 }

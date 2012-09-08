@@ -6,43 +6,51 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.text.method.ScrollingMovementMethod;
 import android.widget.TextView;
-import android.app.Activity;
-import android.content.Intent;
 
 public class MakeLoopGapps extends Activity {
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_make_loop_gapps);
-        CreateMultibootGappsAsync instance = new CreateMultibootGappsAsync();
-        instance.execute(getIntent().getExtras());
-    }
-
     public class CreateMultibootGappsAsync extends
             AsyncTask<Bundle, String, Void> {
+        final static String dataDir = "/data/data/com.fusionx.tilal6991.multiboot/files/";
+        Bundle bundle;
         final String externalPath = Environment.getExternalStorageDirectory()
                 .getAbsolutePath();
-        final String tempSdCardDir = externalPath + "/tempMultiboot/";
         final String finalOutdir = Environment.getExternalStorageDirectory()
                 .getAbsolutePath() + "/multiboot/";
-        final static String dataDir = "/data/data/com.fusionx.tilal6991.multiboot/files/";
 
         String inputFile;
+        private final Runnable mFinished = new Runnable() {
+            public void run() {
+                final Intent intent = new Intent(getApplicationContext(),
+                        MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+        };
         String romExtractionDir;
         String romName;
+
         String systemImageName;
 
-        Bundle bundle;
+        final String tempSdCardDir = externalPath + "/tempMultiboot/";
+
+        private void cleanup() {
+            publishProgress("Cleaning up");
+            CommonFunctions.deleteIfExists(tempSdCardDir);
+            CommonFunctions.deleteIfExists(dataDir);
+            publishProgress("Finished!");
+        }
 
         @Override
-        protected Void doInBackground(Bundle... params) {
+        protected Void doInBackground(final Bundle... params) {
             bundle = params[0];
             inputFile = Environment.getExternalStorageDirectory()
                     .getAbsolutePath() + "/" + bundle.getString("filename");
@@ -65,44 +73,50 @@ public class MakeLoopGapps extends Activity {
             return null;
         }
 
-        private Runnable mFinished = new Runnable() {
-            public void run() {
-                Intent intent = new Intent(getApplicationContext(),
-                        MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-            }
-        };
-
-        private void preClean() {
-            publishProgress("Running a preclean");
-            CommonFunctions.deleteIfExists(finalOutdir + "loop-roms/" + romName
-                    + "-loopinstall.zip");
-            CommonFunctions.deleteIfExists(tempSdCardDir);
+        private void extractRom() {
+            publishProgress("Extracting ROM");
+            CommonFunctions.runRootCommand(dataDir + "busybox unzip -q "
+                    + inputFile + " -d " + romExtractionDir);
         }
 
-        private void packUpAndFinish() {
-            publishProgress("Making ROM zip");
-            CommonFunctions.runRootCommands(new String[] {
-                    "cd " + romExtractionDir,
-                    dataDir + "zip -r -q " + finalOutdir + "loop-roms/"
-                            + romName + "-loopinstall.zip " + "*" });
+        private void findAndReplaceInFile(final String fileName,
+                final String findString, final String replaceString) {
+            try {
+                final Scanner scanner = new Scanner(new File(fileName));
+                final FileWriter s = new FileWriter(new File(fileName + ".fix"));
+                while (scanner.hasNextLine()) {
+                    final String nextLine = scanner.nextLine();
+                    if (nextLine.contains(findString)) {
+                        s.write(replaceString + "\n");
+                    } else {
+                        s.write(nextLine + "\n");
+                    }
+                }
+                s.close();
+                CommonFunctions.runRootCommand("mv " + fileName + ".fix "
+                        + fileName);
+            } catch (final FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (final IOException e) {
+                e.printStackTrace();
+            }
         }
 
         private void fixUpdaterScript() {
             publishProgress("Editing updater script");
-            String updaterScript = romExtractionDir
+            final String updaterScript = romExtractionDir
                     + "META-INF/com/google/android/updater-script";
             String findString = null;
             try {
-                Scanner scanner = new Scanner(new File(updaterScript));
+                final Scanner scanner = new Scanner(new File(updaterScript));
                 while (scanner.hasNextLine()) {
                     findString = scanner.nextLine();
                     if (findString.contains("format(")
-                            && (findString.contains("\"MTD\", \"system\"")))
+                            && (findString.contains("\"MTD\", \"system\""))) {
                         findAndReplaceInFile(updaterScript, findString, "");
+                    }
                 }
-            } catch (FileNotFoundException e) {
+            } catch (final FileNotFoundException e) {
                 e.printStackTrace();
             }
             findAndReplaceInFile(
@@ -121,54 +135,43 @@ public class MakeLoopGapps extends Activity {
 
         }
 
-        private void findAndReplaceInFile(String fileName, String findString,
-                String replaceString) {
-            try {
-                Scanner scanner = new Scanner(new File(fileName));
-                FileWriter s = new FileWriter(new File(fileName + ".fix"));
-                while (scanner.hasNextLine()) {
-                    String nextLine = scanner.nextLine();
-                    if (nextLine.contains(findString))
-                        s.write(replaceString + "\n");
-                    else
-                        s.write(nextLine + "\n");
-                }
-                s.close();
-                CommonFunctions.runRootCommand("mv " + fileName + ".fix "
-                        + fileName);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+        @Override
+        protected void onProgressUpdate(final String... values) {
+            super.onProgressUpdate(values);
+            WriteOutput(values[0]);
+            if (values[0] == "Finished!") {
+                new Handler().postDelayed(mFinished, 5000);
             }
         }
 
-        private void extractRom() {
-            publishProgress("Extracting ROM");
-            CommonFunctions.runRootCommand(dataDir + "busybox unzip -q "
-                    + inputFile + " -d " + romExtractionDir);
+        private void packUpAndFinish() {
+            publishProgress("Making ROM zip");
+            CommonFunctions.runRootCommands(new String[] {
+                    "cd " + romExtractionDir,
+                    dataDir + "zip -r -q " + finalOutdir + "loop-roms/"
+                            + romName + "-loopinstall.zip " + "*" });
         }
 
-        private void cleanup() {
-            publishProgress("Cleaning up");
+        private void preClean() {
+            publishProgress("Running a preclean");
+            CommonFunctions.deleteIfExists(finalOutdir + "loop-roms/" + romName
+                    + "-loopinstall.zip");
             CommonFunctions.deleteIfExists(tempSdCardDir);
-            CommonFunctions.deleteIfExists(dataDir);
-            publishProgress("Finished!");
         }
 
-        @Override
-        protected void onProgressUpdate(String... values) {
-            super.onProgressUpdate(values);
-            WriteOutput(values[0]);
-            if (values[0] == "Finished!")
-                new Handler().postDelayed(mFinished, 5000);
-        }
-
-        public void WriteOutput(String paramString) {
-            TextView editText = (TextView) findViewById(R.id.editText1);
+        public void WriteOutput(final String paramString) {
+            final TextView editText = (TextView) findViewById(R.id.editText1);
             editText.append(paramString + "\n");
             editText.setMovementMethod(new ScrollingMovementMethod());
         }
+    }
+
+    @Override
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_make_loop_gapps);
+        final CreateMultibootGappsAsync instance = new CreateMultibootGappsAsync();
+        instance.execute(getIntent().getExtras());
     }
 
 }

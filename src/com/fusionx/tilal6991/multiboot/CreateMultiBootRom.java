@@ -6,51 +6,57 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
 import android.text.method.ScrollingMovementMethod;
 import android.widget.TextView;
 
 public class CreateMultiBootRom extends Activity {
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_make_multi_boot);
-        CreateMultibootRomAsync instance = new CreateMultibootRomAsync();
-        instance.execute(getIntent().getExtras());
-    }
-
-    @Override
-    public void onBackPressed() {
-    }
-
     @SuppressLint("SdCardPath")
     public class CreateMultibootRomAsync extends
             AsyncTask<Bundle, String, Void> {
+        final static String dataDir = "/data/data/com.fusionx.tilal6991.multiboot/files/";
+        Bundle bundle;
+        String dataImageName;
         final String externalPath = Environment.getExternalStorageDirectory()
                 .getAbsolutePath();
-        final String tempSdCardDir = externalPath + "/tempMultiboot/";
+
         final String finalOutdir = Environment.getExternalStorageDirectory()
                 .getAbsolutePath() + "/multiboot/";
-        final static String dataDir = "/data/data/com.fusionx.tilal6991.multiboot/files/";
-
         String inputFile;
-        String romExtractionDir;
-        String romName;
-        String systemImageName;
-        String dataImageName;
-
+        private final Runnable mFinish = new Runnable() {
+            public void run() {
+                final Intent intent = new Intent(getApplicationContext(),
+                        MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+        };
+        private final Handler mHandler = new Handler();
         boolean nandRom = false;
 
-        Bundle bundle;
+        String romExtractionDir;
+
+        String romName;
+
+        String systemImageName;
+
+        final String tempSdCardDir = externalPath + "/tempMultiboot/";
+
+        private void cleanup() {
+            publishProgress("Cleaning up");
+            CommonFunctions.deleteIfExists(tempSdCardDir);
+            CommonFunctions.deleteIfExists(dataDir);
+            publishProgress("Finished!");
+        }
 
         @Override
-        protected Void doInBackground(Bundle... params) {
+        protected Void doInBackground(final Bundle... params) {
             bundle = params[0];
             inputFile = Environment.getExternalStorageDirectory()
                     .getAbsolutePath() + "/" + bundle.getString("filename");
@@ -67,13 +73,15 @@ public class CreateMultiBootRom extends Activity {
             dataImageName = bundle.getString("dataimagename");
             systemImageName = bundle.getString("systemimagename");
 
-            boolean data = bundle.getBoolean("createdataimage");
-            boolean system = bundle.getBoolean("createsystemimage");
+            final boolean data = bundle.getBoolean("createdataimage");
+            final boolean system = bundle.getBoolean("createsystemimage");
 
-            if (system)
+            if (system) {
                 makeSystemImage();
-            if (data)
+            }
+            if (data) {
                 makeDataImage();
+            }
             extractRom();
             remakeBootImage();
             fixUpdaterScript();
@@ -82,25 +90,123 @@ public class CreateMultiBootRom extends Activity {
             return null;
         }
 
-        private Handler mHandler = new Handler();
+        private void extractRom() {
+            publishProgress("Extracting ROM");
+            CommonFunctions.runRootCommand(dataDir + "busybox unzip -q "
+                    + inputFile + " -d " + romExtractionDir);
+        }
 
-        private Runnable mFinish = new Runnable() {
-            public void run() {
-                Intent intent = new Intent(getApplicationContext(),
-                        MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+        private void findAndReplaceInFile(final String fileName,
+                final String findString, final String replaceString) {
+            try {
+                final Scanner scanner = new Scanner(new File(fileName));
+                final FileWriter s = new FileWriter(new File(fileName + ".fix"));
+                while (scanner.hasNextLine()) {
+                    final String nextLine = scanner.nextLine();
+                    if (nextLine.contains(findString)) {
+                        s.write(replaceString + "\n");
+                    } else {
+                        s.write(nextLine + "\n");
+                    }
+                }
+                s.close();
+                CommonFunctions.runRootCommand("mv " + fileName + ".fix "
+                        + fileName);
+            } catch (final FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (final IOException e) {
+                e.printStackTrace();
             }
-        };
+        }
 
-        private void preClean() {
-            publishProgress("Running a preclean");
-            CommonFunctions.deleteIfExists(finalOutdir + romName + "boot.img");
-            CommonFunctions.deleteIfExists(finalOutdir + "boot" + romName
-                    + ".sh");
-            CommonFunctions.deleteIfExists(finalOutdir + "loop-roms/" + romName
-                    + "-loopinstall.zip");
-            CommonFunctions.deleteIfExists(tempSdCardDir);
+        private boolean findTextInFile(final String fileName,
+                final String findString) {
+            try {
+                final Scanner scanner = new Scanner(new File(fileName));
+                while (scanner.hasNextLine()) {
+                    final String nextLine = scanner.nextLine();
+                    if (nextLine.contains(findString)) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            } catch (final FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            return false;
+        }
+
+        private void fixUpdaterScript() {
+            final String updaterScript = romExtractionDir
+                    + "META-INF/com/google/android/updater-script";
+            String findString = null;
+            try {
+                final Scanner scanner = new Scanner(new File(updaterScript));
+                while (scanner.hasNextLine()) {
+                    findString = scanner.nextLine();
+                    if (findString.contains("format(")
+                            && (findString.contains("\"MTD\", \"system\""))) {
+                        break;
+                    }
+                }
+            } catch (final FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            publishProgress("Editing updater script");
+            findAndReplaceInFile(updaterScript, findString, "");
+            findAndReplaceInFile(
+                    updaterScript,
+                    "mount(\"yaffs2\", \"MTD\", \"system\", \"/system\");",
+                    "run_program(\"/sbin/losetup\", \"/dev/block/loop0\", \"/sdcard/multiboot/"
+                            + systemImageName
+                            + "\");\n"
+                            + "run_program(\"/sbin/mke2fs\", \"-T\", \"ext2\", \"/dev/block/loop0\");\n"
+                            + "run_program(\"/sbin/mount\", \"-t\", \"ext2\", \"/dev/block/loop0\", \"/system\");");
+            findAndReplaceInFile(
+                    updaterScript,
+                    "unmount(\"/system\");",
+                    "unmount(\"/system\");\n"
+                            + "run_program(\"/sbin/losetup\", \"-d\", \"/dev/block/loop0\");");
+
+        }
+
+        private void makeDataImage() {
+            publishProgress("Making data image");
+            makeImage(finalOutdir + dataImageName,
+                    Integer.parseInt(bundle.getString("dataimagesize")) * 1024);
+        }
+
+        private void makeImage(final String imageOutput, final int imageSize) {
+            final String losetupLocation = CommonFunctions.runRootCommand(
+                    "losetup -f").trim();
+            CommonFunctions.runRootCommand("dd if=/dev/zero of=" + imageOutput
+                    + " bs=1024 count=" + imageSize);
+            CommonFunctions.runRootCommand("losetup " + losetupLocation + " "
+                    + imageOutput);
+            CommonFunctions.runRootCommand("mke2fs -t ext2 " + losetupLocation);
+            try {
+                Thread.sleep(10000);
+            } catch (final InterruptedException e) {
+                e.getStackTrace();
+            }
+            CommonFunctions.runRootCommand("losetup -d " + losetupLocation);
+        }
+
+        private void makeSystemImage() {
+            publishProgress("Making system image");
+            makeImage(
+                    finalOutdir + systemImageName,
+                    Integer.parseInt(bundle.getString("systemimagesize")) * 1024);
+        }
+
+        @Override
+        protected void onProgressUpdate(final String... values) {
+            super.onProgressUpdate(values);
+            WriteOutput(values[0]);
+            if (values[0] == "Finished!") {
+                mHandler.postDelayed(mFinish, 5000);
+            }
         }
 
         private void packUpAndFinish() {
@@ -142,86 +248,14 @@ public class CreateMultiBootRom extends Activity {
             }
         }
 
-        private void writeToFile(String fileName, String stringToWrite) {
-            try {
-                FileWriter fileWriter = new FileWriter(fileName);
-                fileWriter.write(stringToWrite);
-                fileWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        private void fixUpdaterScript() {
-            String updaterScript = romExtractionDir
-                    + "META-INF/com/google/android/updater-script";
-            String findString = null;
-            try {
-                Scanner scanner = new Scanner(new File(updaterScript));
-                while (scanner.hasNextLine()) {
-                    findString = scanner.nextLine();
-                    if (findString.contains("format(")
-                            && (findString.contains("\"MTD\", \"system\""))) {
-                        break;
-                    }
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            publishProgress("Editing updater script");
-            findAndReplaceInFile(updaterScript, findString, "");
-            findAndReplaceInFile(
-                    updaterScript,
-                    "mount(\"yaffs2\", \"MTD\", \"system\", \"/system\");",
-                    "run_program(\"/sbin/losetup\", \"/dev/block/loop0\", \"/sdcard/multiboot/"
-                            + systemImageName
-                            + "\");\n"
-                            + "run_program(\"/sbin/mke2fs\", \"-T\", \"ext2\", \"/dev/block/loop0\");\n"
-                            + "run_program(\"/sbin/mount\", \"-t\", \"ext2\", \"/dev/block/loop0\", \"/system\");");
-            findAndReplaceInFile(
-                    updaterScript,
-                    "unmount(\"/system\");",
-                    "unmount(\"/system\");\n"
-                            + "run_program(\"/sbin/losetup\", \"-d\", \"/dev/block/loop0\");");
-
-        }
-
-        private void findAndReplaceInFile(String fileName, String findString,
-                String replaceString) {
-            try {
-                Scanner scanner = new Scanner(new File(fileName));
-                FileWriter s = new FileWriter(new File(fileName + ".fix"));
-                while (scanner.hasNextLine()) {
-                    String nextLine = scanner.nextLine();
-                    if (nextLine.contains(findString))
-                        s.write(replaceString + "\n");
-                    else
-                        s.write(nextLine + "\n");
-                }
-                s.close();
-                CommonFunctions.runRootCommand("mv " + fileName + ".fix "
-                        + fileName);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        private boolean findTextInFile(String fileName, String findString) {
-            try {
-                Scanner scanner = new Scanner(new File(fileName));
-                while (scanner.hasNextLine()) {
-                    String nextLine = scanner.nextLine();
-                    if (nextLine.contains(findString))
-                        return true;
-                    else
-                        return false;
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            return false;
+        private void preClean() {
+            publishProgress("Running a preclean");
+            CommonFunctions.deleteIfExists(finalOutdir + romName + "boot.img");
+            CommonFunctions.deleteIfExists(finalOutdir + "boot" + romName
+                    + ".sh");
+            CommonFunctions.deleteIfExists(finalOutdir + "loop-roms/" + romName
+                    + "-loopinstall.zip");
+            CommonFunctions.deleteIfExists(tempSdCardDir);
         }
 
         private void remakeBootImage() {
@@ -231,11 +265,11 @@ public class CreateMultiBootRom extends Activity {
             CommonFunctions.deleteIfExists(romExtractionDir + "boot.img");
 
             publishProgress("Getting boot.img parameters");
-            String base = "0x"
+            final String base = "0x"
                     + CommonFunctions.runRootCommand(
                             dataDir + "busybox od -A n -h -j 34 -N 2 "
                                     + dataDir + "boot.img").trim() + "0000";
-            String commandLine = "'"
+            final String commandLine = "'"
                     + CommonFunctions.runRootCommand(
                             dataDir + "busybox od -A n --strings -j 64 -N 512 "
                                     + dataDir + "boot.img").trim() + "'";
@@ -308,60 +342,33 @@ public class CreateMultiBootRom extends Activity {
                                     + romExtractionDir + "boot.img" });
         }
 
-        private void extractRom() {
-            publishProgress("Extracting ROM");
-            CommonFunctions.runRootCommand(dataDir + "busybox unzip -q "
-                    + inputFile + " -d " + romExtractionDir);
-        }
-
-        private void cleanup() {
-            publishProgress("Cleaning up");
-            CommonFunctions.deleteIfExists(tempSdCardDir);
-            CommonFunctions.deleteIfExists(dataDir);
-            publishProgress("Finished!");
-        }
-
-        private void makeDataImage() {
-            publishProgress("Making data image");
-            makeImage(finalOutdir + dataImageName,
-                    Integer.parseInt(bundle.getString("dataimagesize")) * 1024);
-        }
-
-        private void makeSystemImage() {
-            publishProgress("Making system image");
-            makeImage(
-                    finalOutdir + systemImageName,
-                    Integer.parseInt(bundle.getString("systemimagesize")) * 1024);
-        }
-
-        private void makeImage(String imageOutput, int imageSize) {
-            String losetupLocation = CommonFunctions.runRootCommand(
-                    "losetup -f").trim();
-            CommonFunctions.runRootCommand("dd if=/dev/zero of=" + imageOutput
-                    + " bs=1024 count=" + imageSize);
-            CommonFunctions.runRootCommand("losetup " + losetupLocation + " "
-                    + imageOutput);
-            CommonFunctions.runRootCommand("mke2fs -t ext2 " + losetupLocation);
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.getStackTrace();
-            }
-            CommonFunctions.runRootCommand("losetup -d " + losetupLocation);
-        }
-
-        @Override
-        protected void onProgressUpdate(String... values) {
-            super.onProgressUpdate(values);
-            WriteOutput(values[0]);
-            if (values[0] == "Finished!")
-                mHandler.postDelayed(mFinish, 5000);
-        }
-
-        public void WriteOutput(String paramString) {
-            TextView editText = (TextView) findViewById(R.id.editText1);
+        public void WriteOutput(final String paramString) {
+            final TextView editText = (TextView) findViewById(R.id.editText1);
             editText.append(paramString + "\n");
             editText.setMovementMethod(new ScrollingMovementMethod());
         }
+
+        private void writeToFile(final String fileName,
+                final String stringToWrite) {
+            try {
+                final FileWriter fileWriter = new FileWriter(fileName);
+                fileWriter.write(stringToWrite);
+                fileWriter.close();
+            } catch (final IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+    }
+
+    @Override
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_make_multi_boot);
+        final CreateMultibootRomAsync instance = new CreateMultibootRomAsync();
+        instance.execute(getIntent().getExtras());
     }
 }
