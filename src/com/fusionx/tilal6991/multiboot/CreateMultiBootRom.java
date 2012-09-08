@@ -20,16 +20,15 @@ public class CreateMultiBootRom extends Activity {
     @SuppressLint("SdCardPath")
     public class CreateMultibootRomAsync extends
             AsyncTask<Bundle, String, Void> {
-        private final static String dataDir = "/data/data/com.fusionx.tilal6991.multiboot/files/";
-        private Bundle bundle;
-        private String dataImageName;
-        private final String externalPath = Environment
-                .getExternalStorageDirectory().getAbsolutePath();
+        final static String dataDir = "/data/data/com.fusionx.tilal6991.multiboot/files/";
+        Bundle bundle;
+        String dataImageName;
+        final String externalPath = Environment.getExternalStorageDirectory()
+                .getAbsolutePath();
 
-        private final String finalOutdir = Environment
-                .getExternalStorageDirectory().getAbsolutePath()
-                + "/multiboot/";
-        private String inputFile;
+        final String finalOutdir = Environment.getExternalStorageDirectory()
+                .getAbsolutePath() + "/multiboot/";
+        String inputFile;
         private final Runnable mFinish = new Runnable() {
             public void run() {
                 final Intent intent = new Intent(getApplicationContext(),
@@ -39,14 +38,15 @@ public class CreateMultiBootRom extends Activity {
             }
         };
         private final Handler mHandler = new Handler();
+        boolean nandRom = false;
 
-        private String romExtractionDir;
+        String romExtractionDir;
 
-        private String romName;
+        String romName;
 
-        private String systemImageName;
+        String systemImageName;
 
-        private final String tempSdCardDir = externalPath + "/tempMultiboot/";
+        final String tempSdCardDir = externalPath + "/tempMultiboot/";
 
         private void cleanup() {
             publishProgress("Cleaning up");
@@ -342,7 +342,7 @@ public class CreateMultiBootRom extends Activity {
                                     + romExtractionDir + "boot.img" });
         }
 
-        private void WriteOutput(final String paramString) {
+        public void WriteOutput(final String paramString) {
             final TextView editText = (TextView) findViewById(R.id.editText1);
             editText.append(paramString + "\n");
             editText.setMovementMethod(new ScrollingMovementMethod());

@@ -17,17 +17,16 @@ import android.widget.TextView;
 
 public class MakeLoopGapps extends Activity {
 
-    private class CreateMultibootGappsAsync extends
+    public class CreateMultibootGappsAsync extends
             AsyncTask<Bundle, String, Void> {
-        private final static String dataDir = "/data/data/com.fusionx.tilal6991.multiboot/files/";
-        private Bundle bundle;
-        private final String externalPath = Environment
-                .getExternalStorageDirectory().getAbsolutePath();
-        private final String finalOutdir = Environment
-                .getExternalStorageDirectory().getAbsolutePath()
-                + "/multiboot/";
+        final static String dataDir = "/data/data/com.fusionx.tilal6991.multiboot/files/";
+        Bundle bundle;
+        final String externalPath = Environment.getExternalStorageDirectory()
+                .getAbsolutePath();
+        final String finalOutdir = Environment.getExternalStorageDirectory()
+                .getAbsolutePath() + "/multiboot/";
 
-        private String inputFile;
+        String inputFile;
         private final Runnable mFinished = new Runnable() {
             public void run() {
                 final Intent intent = new Intent(getApplicationContext(),
@@ -36,14 +35,12 @@ public class MakeLoopGapps extends Activity {
                 startActivity(intent);
             }
         };
-        private final Handler mHandler = new Handler();
-        private String romExtractionDir;
+        String romExtractionDir;
+        String romName;
 
-        private String romName;
+        String systemImageName;
 
-        private String systemImageName;
-
-        private final String tempSdCardDir = externalPath + "/tempMultiboot/";
+        final String tempSdCardDir = externalPath + "/tempMultiboot/";
 
         private void cleanup() {
             publishProgress("Cleaning up");
@@ -143,7 +140,7 @@ public class MakeLoopGapps extends Activity {
             super.onProgressUpdate(values);
             WriteOutput(values[0]);
             if (values[0] == "Finished!") {
-                mHandler.postDelayed(mFinished, 5000);
+                new Handler().postDelayed(mFinished, 5000);
             }
         }
 
@@ -162,7 +159,7 @@ public class MakeLoopGapps extends Activity {
             CommonFunctions.deleteIfExists(tempSdCardDir);
         }
 
-        private void WriteOutput(final String paramString) {
+        public void WriteOutput(final String paramString) {
             final TextView editText = (TextView) findViewById(R.id.editText1);
             editText.append(paramString + "\n");
             editText.setMovementMethod(new ScrollingMovementMethod());
