@@ -39,8 +39,6 @@ public class MakeLoopGapps extends Activity {
         String romName;
         String systemImageName;
 
-        boolean nandRom = false;
-
         Bundle bundle;
 
         @Override
