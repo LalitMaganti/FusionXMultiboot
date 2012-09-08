@@ -98,8 +98,6 @@ public class CreateMultiBootRom extends Activity {
             CommonFunctions.deleteIfExists(finalOutdir + romName + "boot.img");
             CommonFunctions.deleteIfExists(finalOutdir + "boot" + romName
                     + ".sh");
-            CommonFunctions.deleteIfExists(finalOutdir + "boot.sh");
-
             CommonFunctions.deleteIfExists(finalOutdir + "loop-roms/" + romName
                     + "-loopinstall.zip");
             CommonFunctions.deleteIfExists(tempSdCardDir);
@@ -126,9 +124,10 @@ public class CreateMultiBootRom extends Activity {
             CommonFunctions.runRootCommand("cp /init.rc " + tempSdCardDir
                     + "currentRom.init.rc");
 
-            if (findTextInFile(tempSdCardDir + "currentRom.init.rc",
+            if (!findTextInFile(tempSdCardDir + "currentRom.init.rc",
                     "mount ext2 loop@")) {
                 CommonFunctions.deleteIfExists(finalOutdir + "boot.img");
+                CommonFunctions.deleteIfExists(finalOutdir + "boot.sh");
 
                 publishProgress("Creating nand boot image");
                 CommonFunctions
