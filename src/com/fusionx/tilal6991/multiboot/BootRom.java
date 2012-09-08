@@ -23,7 +23,7 @@ public class BootRom extends Activity {
         }
     };
 
-    public void DisplayToast(final String paramString) {
+    private void DisplayToast(final String paramString) {
         Toast.makeText(this, paramString, Toast.LENGTH_SHORT).show();
     }
 

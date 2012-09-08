@@ -17,21 +17,21 @@ public class MainActivity extends Activity {
         @Override
         protected Void doInBackground(final Void... arg0) {
             CommonFunctions
-                    .deleteIfExists("/data/data/com.fusionx.tilal6991.multiboot/files/");
-            writeRawResource(R.raw.raw, "raw.tar");
+                    .deleteIfExists(Globals.getString("MainActivity.0")); //$NON-NLS-1$
+            writeRawResource(R.raw.raw, Globals.getString("MainActivity.1")); //$NON-NLS-1$
             CommonFunctions
-                    .runRootCommand("tar -zxvf /data/data/com.fusionx.tilal6991.multiboot/files/raw.tar -C /data/data/com.fusionx.tilal6991.multiboot/files/");
+                    .runRootCommand(Globals.getString("MainActivity.2")); //$NON-NLS-1$
             CommonFunctions
-                    .runRootCommand("chmod -R 777 /data/data/com.fusionx.tilal6991.multiboot/files/*");
+                    .runRootCommand(Globals.getString("MainActivity.3")); //$NON-NLS-1$
             CommonFunctions
-                    .deleteIfExists("/data/data/com.fusionx.tilal6991.multiboot/files/raw.tar");
+                    .deleteIfExists(Globals.getString("MainActivity.4")); //$NON-NLS-1$
             return null;
         }
     }
 
     public void createGapps(final View view) {
         final Intent intent = new Intent(this, Finalisation.class);
-        intent.putExtra("gapps", true);
+        intent.putExtra(Globals.getString("MainActivity.5"), true); //$NON-NLS-1$
         startActivity(intent);
     }
 
@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
     }
 
     private void writeRawResource(final int resource, final String name) {
-        if (!(new File("/data/data/com.fusionx.tilal6991.multiboot/files/"
+        if (!(new File(Globals.getString("MainActivity.6") //$NON-NLS-1$
                 + name).exists())) {
             try {
                 final InputStream in = getResources().openRawResource(resource);

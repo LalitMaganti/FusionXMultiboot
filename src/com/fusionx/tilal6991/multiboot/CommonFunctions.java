@@ -26,6 +26,7 @@ public class CommonFunctions {
                     p.getInputStream()));
             final DataOutputStream os = new DataOutputStream(
                     p.getOutputStream());
+            Log.d(TAG, cmd);
             os.writeBytes(cmd + "\n");
             os.writeBytes("exit\n");
             os.flush();
@@ -33,12 +34,11 @@ public class CommonFunctions {
             while (read != null) {
                 sb.append(read + '\n');
                 read = br.readLine();
+                Log.d(TAG, read);
             }
         } catch (final IOException e) {
             e.printStackTrace();
         }
-        Log.d(TAG, cmd);
-        Log.d(TAG, sb.toString());
         return sb.toString();
     }
 
@@ -52,6 +52,7 @@ public class CommonFunctions {
             final DataOutputStream os = new DataOutputStream(
                     p.getOutputStream());
             for (final String command : cmd) {
+                Log.d(TAG, command);
                 os.writeBytes(command + "\n");
             }
             os.writeBytes("exit\n");
@@ -60,14 +61,11 @@ public class CommonFunctions {
             while (read != null) {
                 sb.append(read + '\n');
                 read = br.readLine();
+                Log.d(TAG, read);
             }
         } catch (final IOException e) {
             e.printStackTrace();
         }
-        for (final String command : cmd) {
-            Log.d(TAG, command);
-        }
-        Log.d(TAG, sb.toString());
         return sb.toString();
     }
 }
