@@ -11,25 +11,34 @@
         android:layout_height="match_parent"
         android:orientation="vertical" >
 
-        <Button
-            android:id="@+id/button1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="86dp"
-            android:onClick="openRomBoot"
-            android:text="Boot into another ROM" />
+                <Button
+                    android:id="@+id/button2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginBottom="88dp"
+                    android:onClick="createGapps"
+                    android:text="Create a new multiboot gapps" />
 
-        <Button
-            android:id="@+id/button2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/button1"
-            android:layout_marginTop="99dp"
-            android:onClick="createRom"
-            android:text="Create a new multiboot rom" />
+                <Button
+                    android:id="@+id/button2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:onClick="createRom"
+                    android:text="Create a new multiboot rom" />
+
+                <Button
+                    android:id="@+id/button1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/button2"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginBottom="65dp"
+                    android:onClick="openRomBoot"
+                    android:text="Boot into another ROM" />
 
     </RelativeLayout>
 

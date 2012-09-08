@@ -1,4 +1,4 @@
-package com.fusionx.tilal6991.dualboot;
+package com.fusionx.tilal6991.multiboot;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -16,31 +16,34 @@ import android.widget.TextView;
 
 public class Finalisation extends Activity {
     String mChosen;
+    Bundle b;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finalisation);
-        Bundle b = getIntent().getExtras();
-        boolean data = b.getBoolean("createdataimage");
-        boolean system = b.getBoolean("createsystemimage");
-        if (data == true) {
+        b = getIntent().getExtras();
+        if (b.getBoolean("gapps") == true) {
             findViewById(R.id.edtData).setVisibility(4);
             findViewById(R.id.txtData).setVisibility(4);
-        }
-        if (system == true) {
-            findViewById(R.id.edtSystem).setVisibility(4);
-            findViewById(R.id.txtSystem).setVisibility(4);
+        } else {
+            if (b.getBoolean("createdataimage") == true) {
+                findViewById(R.id.edtData).setVisibility(4);
+                findViewById(R.id.txtData).setVisibility(4);
+            }
+            if (b.getBoolean("createsystemimage") == true) {
+                findViewById(R.id.edtSystem).setVisibility(4);
+                findViewById(R.id.txtSystem).setVisibility(4);
+            }
         }
     }
 
     public void chooseRom(final File mPath) {
         final FilenameFilter filter = new FilenameFilter() {
             public boolean accept(File dir, String filename) {
-                return filename.endsWith(".zip") || dir.isDirectory();
+                return filename.endsWith(".zip");
             }
         };
-
         final String[] mFileList = mPath.list(filter);
 
         final Builder builder = new Builder(this);
@@ -61,7 +64,6 @@ public class Finalisation extends Activity {
                 }
             }
         };
-
         builder.setItems(mFileList, k);
         builder.show();
     }
@@ -71,19 +73,24 @@ public class Finalisation extends Activity {
     }
 
     public void finish(View view) {
-        Intent intent = new Intent(this, CreateMultiBootRom.class);
-        intent.putExtra("filename", mChosen);
-        Bundle b = getIntent().getExtras();
-        boolean data = b.getBoolean("createdataimage");
-        boolean system = b.getBoolean("createsystemimage");
-        if (data == false)
-            intent.putExtra("dataimagename",
-                    ((EditText) findViewById(R.id.edtData)).getText()
-                            .toString());
-        if (system == false)
+        Intent intent;
+        if (b.getBoolean("gapps") == true) {
+            intent = new Intent(this, MakeLoopGapps.class);
             intent.putExtra("systemimagename",
                     ((EditText) findViewById(R.id.edtSystem)).getText()
                             .toString());
+        } else {
+            intent = new Intent(this, CreateMultiBootRom.class);
+            if (b.getBoolean("createdataimage") == false)
+                intent.putExtra("dataimagename",
+                        ((EditText) findViewById(R.id.edtData)).getText()
+                                .toString());
+            if (b.getBoolean("createsystemimage") == false)
+                intent.putExtra("systemimagename",
+                        ((EditText) findViewById(R.id.edtSystem)).getText()
+                                .toString());
+        }
+        intent.putExtra("filename", mChosen);
         intent.putExtras(getIntent().getExtras());
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);

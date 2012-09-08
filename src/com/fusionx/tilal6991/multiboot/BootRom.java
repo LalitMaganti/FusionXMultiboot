@@ -1,4 +1,4 @@
-package com.fusionx.tilal6991.dualboot;
+package com.fusionx.tilal6991.multiboot;
 
 import java.io.FilenameFilter;
 import java.io.File;
@@ -15,7 +15,6 @@ public class BootRom extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_romboot);
 

@@ -1,4 +1,4 @@
-package com.fusionx.tilal6991.dualboot;
+package com.fusionx.tilal6991.multiboot;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -7,34 +7,33 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
-public class DataPartition extends Activity {
+public class SystemPartition extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_data_partition);
+        setContentView(R.layout.activity_system_partition);
         changeEnable(findViewById(R.id.checkBox1));
     }
 
     public void next(View v) {
-        Intent intent = new Intent(this, Finalisation.class);
+        Intent intent = new Intent(this, DataPartition.class);
         boolean checked = ((CheckBox) (findViewById(R.id.checkBox1)))
                 .isChecked();
-        intent.putExtra("createdataimage", checked);
+        intent.putExtra("createsystemimage", checked);
         if (checked) {
-            intent.putExtra("dataimagename",
+            intent.putExtra("systemimagename",
                     ((EditText) findViewById(R.id.editText2)).getText()
                             .toString());
-            intent.putExtra("dataimagesize",
+            intent.putExtra("systemimagesize",
                     ((EditText) findViewById(R.id.editText1)).getText()
                             .toString());
         }
-        intent.putExtras(getIntent().getExtras());
         startActivity(intent);
     }
 
     public void changeEnable(View view) {
         int visible;
-        if (!((CheckBox) view).isChecked())
+        if (!(((CheckBox) view).isChecked()))
             visible = 4;
         else
             visible = 0;

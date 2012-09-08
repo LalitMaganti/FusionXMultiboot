@@ -1,4 +1,4 @@
-package com.fusionx.tilal6991.dualboot;
+package com.fusionx.tilal6991.multiboot;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -9,6 +9,8 @@ import java.io.InputStreamReader;
 import android.util.Log;
 
 public class CommonFunctions {
+    static final String TAG = "FusionXMultiboot";
+
     static String runRootCommand(String cmd) {
         final StringBuilder sb = new StringBuilder();
         Process p = null;
@@ -28,8 +30,8 @@ public class CommonFunctions {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Log.d("Mutiboot", cmd);
-        Log.d("Mutiboot", sb.toString());
+        Log.d(TAG, cmd);
+        Log.d(TAG, sb.toString());
         return sb.toString();
     }
 
@@ -54,8 +56,8 @@ public class CommonFunctions {
             e.printStackTrace();
         }
         for (String command : cmd)
-            Log.d("Mutiboot", command);
-        Log.d("Mutiboot", sb.toString());
+            Log.d(TAG, command);
+        Log.d(TAG, sb.toString());
         return sb.toString();
     }
 

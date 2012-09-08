@@ -1,4 +1,4 @@
-package com.fusionx.tilal6991.dualboot;
+package com.fusionx.tilal6991.multiboot;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.text.method.ScrollingMovementMethod;
@@ -28,6 +29,7 @@ public class CreateMultiBootRom extends Activity {
     public void onBackPressed() {
     }
 
+    @SuppressLint("SdCardPath")
     public class CreateMultibootRomAsync extends
             AsyncTask<Bundle, String, Void> {
         final String externalPath = Environment.getExternalStorageDirectory()
@@ -35,7 +37,7 @@ public class CreateMultiBootRom extends Activity {
         final String tempSdCardDir = externalPath + "/tempMultiboot/";
         final String finalOutdir = Environment.getExternalStorageDirectory()
                 .getAbsolutePath() + "/multiboot/";
-        final static String dataDir = "/data/data/com.fusionx.tilal6991.dualboot/files/";
+        final static String dataDir = "/data/data/com.fusionx.tilal6991.multiboot/files/";
 
         String inputFile;
         String romExtractionDir;
@@ -82,7 +84,7 @@ public class CreateMultiBootRom extends Activity {
 
         private Handler mHandler = new Handler();
 
-        private Runnable mUpdateTimeTask = new Runnable() {
+        private Runnable mFinish = new Runnable() {
             public void run() {
                 Intent intent = new Intent(getApplicationContext(),
                         MainActivity.class);
@@ -318,22 +320,19 @@ public class CreateMultiBootRom extends Activity {
             CommonFunctions.deleteIfExists(tempSdCardDir);
             CommonFunctions.deleteIfExists(dataDir);
             publishProgress("Finished!");
-            publishProgress("gotomain");
         }
 
         private void makeDataImage() {
             publishProgress("Making data image");
-            String dataOutput = finalOutdir + dataImageName;
-            int dataSize = Integer.parseInt(bundle.getString("dataimagesize")) * 1024;
-            makeImage(dataOutput, dataSize);
+            makeImage(finalOutdir + dataImageName,
+                    Integer.parseInt(bundle.getString("dataimagesize")) * 1024);
         }
 
         private void makeSystemImage() {
             publishProgress("Making system image");
-            String systemOutput = finalOutdir + systemImageName;
-            int systemSize = Integer.parseInt(bundle
-                    .getString("systemimagesize")) * 1024;
-            makeImage(systemOutput, systemSize);
+            makeImage(
+                    finalOutdir + systemImageName,
+                    Integer.parseInt(bundle.getString("systemimagesize")) * 1024);
         }
 
         private void makeImage(String imageOutput, int imageSize) {
@@ -355,10 +354,9 @@ public class CreateMultiBootRom extends Activity {
         @Override
         protected void onProgressUpdate(String... values) {
             super.onProgressUpdate(values);
-            if (values[0] == "gotomain")
-                mHandler.postDelayed(mUpdateTimeTask, 5000);
-            else
-                WriteOutput(values[0]);
+            WriteOutput(values[0]);
+            if (values[0] == "Finished!")
+                mHandler.postDelayed(mFinish, 5000);
         }
 
         public void WriteOutput(String paramString) {

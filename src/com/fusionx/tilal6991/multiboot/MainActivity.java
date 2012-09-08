@@ -1,4 +1,4 @@
-package com.fusionx.tilal6991.dualboot;
+package com.fusionx.tilal6991.multiboot;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +21,7 @@ public class MainActivity extends Activity {
     }
 
     private void writeRawResource(int resource, String name) {
-        if (!(new File("/data/data/com.fusionx.tilal6991.dualboot/files/"
+        if (!(new File("/data/data/com.fusionx.tilal6991.multiboot/files/"
                 + name).exists())) {
             try {
                 InputStream in = getResources().openRawResource(resource);
@@ -49,16 +49,24 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
+    public void createGapps(View view) {
+        Intent intent = new Intent(this, Finalisation.class);
+        intent.putExtra("gapps", true);
+        startActivity(intent);
+    }
+
     private class CleaupAndExtract extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... arg0) {
             CommonFunctions
-                    .deleteIfExists("/data/data/com.fusionx.tilal6991.dualboot/files/");
+                    .deleteIfExists("/data/data/com.fusionx.tilal6991.multiboot/files/");
             writeRawResource(R.raw.raw, "raw.tar");
             CommonFunctions
-                    .runRootCommand("tar -zxvf /data/data/com.fusionx.tilal6991.dualboot/files/raw.tar -C /data/data/com.fusionx.tilal6991.dualboot/files/");
+                    .runRootCommand("tar -zxvf /data/data/com.fusionx.tilal6991.multiboot/files/raw.tar -C /data/data/com.fusionx.tilal6991.multiboot/files/");
             CommonFunctions
-                    .runRootCommand("chmod -R 777 /data/data/com.fusionx.tilal6991.dualboot/files/*");
+                    .runRootCommand("chmod -R 777 /data/data/com.fusionx.tilal6991.multiboot/files/*");
+            CommonFunctions
+                    .deleteIfExists("/data/data/com.fusionx.tilal6991.multiboot/files/raw.tar");
             return null;
         }
     }
