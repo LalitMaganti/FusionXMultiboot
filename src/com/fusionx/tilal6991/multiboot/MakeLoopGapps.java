@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 public class MakeLoopGapps extends Activity {
 
-    public class CreateMultibootGappsAsync extends
+    private class CreateMultibootGappsAsync extends
             AsyncTask<Bundle, String, Void> {
         final static String dataDir = "/data/data/com.fusionx.tilal6991.multiboot/files/";
         Bundle bundle;
@@ -35,7 +35,9 @@ public class MakeLoopGapps extends Activity {
                 startActivity(intent);
             }
         };
+        private final Handler mHandler = new Handler();
         String romExtractionDir;
+
         String romName;
 
         String systemImageName;
@@ -86,11 +88,10 @@ public class MakeLoopGapps extends Activity {
                 final FileWriter s = new FileWriter(new File(fileName + ".fix"));
                 while (scanner.hasNextLine()) {
                     final String nextLine = scanner.nextLine();
-                    if (nextLine.contains(findString)) {
+                    if (nextLine.contains(findString))
                         s.write(replaceString + "\n");
-                    } else {
+                    else
                         s.write(nextLine + "\n");
-                    }
                 }
                 s.close();
                 CommonFunctions.runRootCommand("mv " + fileName + ".fix "
@@ -112,9 +113,8 @@ public class MakeLoopGapps extends Activity {
                 while (scanner.hasNextLine()) {
                     findString = scanner.nextLine();
                     if (findString.contains("format(")
-                            && (findString.contains("\"MTD\", \"system\""))) {
+                            && (findString.contains("\"MTD\", \"system\"")))
                         findAndReplaceInFile(updaterScript, findString, "");
-                    }
                 }
             } catch (final FileNotFoundException e) {
                 e.printStackTrace();
@@ -139,9 +139,8 @@ public class MakeLoopGapps extends Activity {
         protected void onProgressUpdate(final String... values) {
             super.onProgressUpdate(values);
             WriteOutput(values[0]);
-            if (values[0] == "Finished!") {
-                new Handler().postDelayed(mFinished, 5000);
-            }
+            if (values[0] == "Finished!")
+                mHandler.postDelayed(mFinished, 5000);
         }
 
         private void packUpAndFinish() {
@@ -159,7 +158,7 @@ public class MakeLoopGapps extends Activity {
             CommonFunctions.deleteIfExists(tempSdCardDir);
         }
 
-        public void WriteOutput(final String paramString) {
+        private void WriteOutput(final String paramString) {
             final TextView editText = (TextView) findViewById(R.id.editText1);
             editText.append(paramString + "\n");
             editText.setMovementMethod(new ScrollingMovementMethod());

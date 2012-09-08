@@ -15,11 +15,10 @@ public class BootRom extends Activity {
 
     FilenameFilter audioFilter = new FilenameFilter() {
         public boolean accept(final File dir, final String name) {
-            if (name.endsWith(".sh")) {
+            if (name.endsWith(".sh"))
                 return true;
-            } else {
+            else
                 return false;
-            }
         }
     };
 

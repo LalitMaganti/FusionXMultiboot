@@ -32,10 +32,10 @@ public class Finalisation extends Activity {
         final DialogInterface.OnClickListener k = new DialogInterface.OnClickListener() {
             public void onClick(final DialogInterface dialog, final int which) {
                 final File sel = new File(mFileList[which]);
-                if (sel.isDirectory()) {
+                if (sel.isDirectory())
                     chooseRom(new File(mPath.getAbsolutePath() + "/"
                             + sel.getName()));
-                } else {
+                else {
                     mChosen = mFileList[which];
                     final TextView k = (TextView) findViewById(R.id.txtRom);
                     k.setText(mChosen);
@@ -61,16 +61,14 @@ public class Finalisation extends Activity {
                             .toString());
         } else {
             intent = new Intent(this, CreateMultiBootRom.class);
-            if (b.getBoolean("createdataimage") == false) {
+            if (b.getBoolean("createdataimage") == false)
                 intent.putExtra("dataimagename",
                         ((EditText) findViewById(R.id.edtData)).getText()
                                 .toString());
-            }
-            if (b.getBoolean("createsystemimage") == false) {
+            if (b.getBoolean("createsystemimage") == false)
                 intent.putExtra("systemimagename",
                         ((EditText) findViewById(R.id.edtSystem)).getText()
                                 .toString());
-            }
         }
         intent.putExtra("filename", mChosen);
         intent.putExtras(getIntent().getExtras());

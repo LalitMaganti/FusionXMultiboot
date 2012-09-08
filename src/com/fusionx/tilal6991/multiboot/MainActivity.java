@@ -54,7 +54,7 @@ public class MainActivity extends Activity {
 
     private void writeRawResource(final int resource, final String name) {
         if (!(new File("/data/data/com.fusionx.tilal6991.multiboot/files/"
-                + name).exists())) {
+                + name).exists()))
             try {
                 final InputStream in = getResources().openRawResource(resource);
                 final byte[] buffer = new byte[4096];
@@ -69,6 +69,5 @@ public class MainActivity extends Activity {
                 out.close();
             } catch (final IOException e) {
             }
-        }
     }
 }

@@ -18,17 +18,18 @@ import android.widget.TextView;
 
 public class CreateMultiBootRom extends Activity {
     @SuppressLint("SdCardPath")
-    public class CreateMultibootRomAsync extends
+    private class CreateMultibootRomAsync extends
             AsyncTask<Bundle, String, Void> {
-        final static String dataDir = "/data/data/com.fusionx.tilal6991.multiboot/files/";
-        Bundle bundle;
-        String dataImageName;
-        final String externalPath = Environment.getExternalStorageDirectory()
-                .getAbsolutePath();
+        private final static String dataDir = "/data/data/com.fusionx.tilal6991.multiboot/files/";
+        private Bundle bundle;
+        private String dataImageName;
+        private final String externalPath = Environment
+                .getExternalStorageDirectory().getAbsolutePath();
 
-        final String finalOutdir = Environment.getExternalStorageDirectory()
-                .getAbsolutePath() + "/multiboot/";
-        String inputFile;
+        private final String finalOutdir = Environment
+                .getExternalStorageDirectory().getAbsolutePath()
+                + "/multiboot/";
+        private String inputFile;
         private final Runnable mFinish = new Runnable() {
             public void run() {
                 final Intent intent = new Intent(getApplicationContext(),
@@ -38,15 +39,14 @@ public class CreateMultiBootRom extends Activity {
             }
         };
         private final Handler mHandler = new Handler();
-        boolean nandRom = false;
 
-        String romExtractionDir;
+        private String romExtractionDir;
 
-        String romName;
+        private String romName;
 
-        String systemImageName;
+        private String systemImageName;
 
-        final String tempSdCardDir = externalPath + "/tempMultiboot/";
+        private final String tempSdCardDir = externalPath + "/tempMultiboot/";
 
         private void cleanup() {
             publishProgress("Cleaning up");
@@ -76,12 +76,10 @@ public class CreateMultiBootRom extends Activity {
             final boolean data = bundle.getBoolean("createdataimage");
             final boolean system = bundle.getBoolean("createsystemimage");
 
-            if (system) {
+            if (system)
                 makeSystemImage();
-            }
-            if (data) {
+            if (data)
                 makeDataImage();
-            }
             extractRom();
             remakeBootImage();
             fixUpdaterScript();
@@ -103,11 +101,10 @@ public class CreateMultiBootRom extends Activity {
                 final FileWriter s = new FileWriter(new File(fileName + ".fix"));
                 while (scanner.hasNextLine()) {
                     final String nextLine = scanner.nextLine();
-                    if (nextLine.contains(findString)) {
+                    if (nextLine.contains(findString))
                         s.write(replaceString + "\n");
-                    } else {
+                    else
                         s.write(nextLine + "\n");
-                    }
                 }
                 s.close();
                 CommonFunctions.runRootCommand("mv " + fileName + ".fix "
@@ -125,11 +122,10 @@ public class CreateMultiBootRom extends Activity {
                 final Scanner scanner = new Scanner(new File(fileName));
                 while (scanner.hasNextLine()) {
                     final String nextLine = scanner.nextLine();
-                    if (nextLine.contains(findString)) {
+                    if (nextLine.contains(findString))
                         return true;
-                    } else {
+                    else
                         return false;
-                    }
                 }
             } catch (final FileNotFoundException e) {
                 e.printStackTrace();
@@ -138,6 +134,7 @@ public class CreateMultiBootRom extends Activity {
         }
 
         private void fixUpdaterScript() {
+            publishProgress("Editing updater script");
             final String updaterScript = romExtractionDir
                     + "META-INF/com/google/android/updater-script";
             String findString = null;
@@ -146,15 +143,12 @@ public class CreateMultiBootRom extends Activity {
                 while (scanner.hasNextLine()) {
                     findString = scanner.nextLine();
                     if (findString.contains("format(")
-                            && (findString.contains("\"MTD\", \"system\""))) {
-                        break;
-                    }
+                            && (findString.contains("\"MTD\", \"system\"")))
+                        findAndReplaceInFile(updaterScript, findString, "");
                 }
             } catch (final FileNotFoundException e) {
                 e.printStackTrace();
             }
-            publishProgress("Editing updater script");
-            findAndReplaceInFile(updaterScript, findString, "");
             findAndReplaceInFile(
                     updaterScript,
                     "mount(\"yaffs2\", \"MTD\", \"system\", \"/system\");",
@@ -204,9 +198,8 @@ public class CreateMultiBootRom extends Activity {
         protected void onProgressUpdate(final String... values) {
             super.onProgressUpdate(values);
             WriteOutput(values[0]);
-            if (values[0] == "Finished!") {
+            if (values[0] == "Finished!")
                 mHandler.postDelayed(mFinish, 5000);
-            }
         }
 
         private void packUpAndFinish() {
@@ -297,11 +290,10 @@ public class CreateMultiBootRom extends Activity {
             String externalDir;
 
             if (findTextInFile(romExtractionDir + "system/build.prop",
-                    "ro.build.version.release=4.1")) {
+                    "ro.build.version.release=4.1"))
                 externalDir = "/storage/sdcard0";
-            } else {
+            else
                 externalDir = "/sdcard";
-            }
 
             findAndReplaceInFile(tempSdCardDir + "init.rc", "on fs", "on fs\n"
                     + "    mkdir -p " + externalDir + "\n"
@@ -342,7 +334,7 @@ public class CreateMultiBootRom extends Activity {
                                     + romExtractionDir + "boot.img" });
         }
 
-        public void WriteOutput(final String paramString) {
+        private void WriteOutput(final String paramString) {
             final TextView editText = (TextView) findViewById(R.id.editText1);
             editText.append(paramString + "\n");
             editText.setMovementMethod(new ScrollingMovementMethod());

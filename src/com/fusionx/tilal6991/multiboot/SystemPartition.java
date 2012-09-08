@@ -10,11 +10,10 @@ import android.widget.EditText;
 public class SystemPartition extends Activity {
     public void changeEnable(final View view) {
         int visible;
-        if (!(((CheckBox) view).isChecked())) {
+        if (!(((CheckBox) view).isChecked()))
             visible = 4;
-        } else {
+        else
             visible = 0;
-        }
         findViewById(R.id.editText1).setVisibility(visible);
         findViewById(R.id.editText2).setVisibility(visible);
         findViewById(R.id.textView1).setVisibility(visible);
