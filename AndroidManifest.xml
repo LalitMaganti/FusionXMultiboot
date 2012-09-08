@@ -73,7 +73,7 @@
         <activity
             android:name=".CreateMultiBootRom"
             android:configChanges="orientation"
-            android:label="@string/title_activity_make_multi_boot"
+            android:label="@string/title_activity_make_multi_boot_rom"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

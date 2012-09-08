@@ -6,8 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
-import com.fusionx.tilal6991.multiboot.CreateMultiBootRom.CreateMultibootRomAsync;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -69,8 +67,6 @@ public class MakeLoopGapps extends Activity {
             return null;
         }
 
-        private Handler mHandler = new Handler();
-
         private Runnable mFinished = new Runnable() {
             public void run() {
                 Intent intent = new Intent(getApplicationContext(),
@@ -96,6 +92,7 @@ public class MakeLoopGapps extends Activity {
         }
 
         private void fixUpdaterScript() {
+            publishProgress("Editing updater script");
             String updaterScript = romExtractionDir
                     + "META-INF/com/google/android/updater-script";
             String findString = null;
@@ -104,15 +101,12 @@ public class MakeLoopGapps extends Activity {
                 while (scanner.hasNextLine()) {
                     findString = scanner.nextLine();
                     if (findString.contains("format(")
-                            && (findString.contains("\"MTD\", \"system\""))) {
-                        break;
-                    }
+                            && (findString.contains("\"MTD\", \"system\"")))
+                        findAndReplaceInFile(updaterScript, findString, "");
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-            publishProgress("Editing updater script");
-            findAndReplaceInFile(updaterScript, findString, "");
             findAndReplaceInFile(
                     updaterScript,
                     "mount(\"yaffs2\", \"MTD\", \"system\", \"/system\");",
@@ -169,7 +163,7 @@ public class MakeLoopGapps extends Activity {
             super.onProgressUpdate(values);
             WriteOutput(values[0]);
             if (values[0] == "Finished!")
-                mHandler.postDelayed(mFinished, 5000);
+                new Handler().postDelayed(mFinished, 5000);
         }
 
         public void WriteOutput(String paramString) {

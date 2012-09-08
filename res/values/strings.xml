@@ -6,11 +6,7 @@
     <string name="title_activity_system_partition">System Image</string>
     <string name="title_activity_data_partition">Data Image</string>
     <string name="title_activity_finalisation">Finalisation</string>
-    <string name="title_activity_make_multi_boot">Making Multiboot Rom</string>
     <string name="button_next">Next</string>
     <string name="button_finish">Finish</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="menu_settings">Settings</string>
-    <string name="title_activity_make_loop_gapps">MakeLoopGapps</string>
-
+    <string name="title_activity_make_loop_gapps">Make Multiboot Gapps</string>
 </resources>

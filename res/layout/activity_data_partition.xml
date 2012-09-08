@@ -61,6 +61,8 @@
         android:layout_below="@+id/textView2"
         android:ems="10"
         android:inputType="textNoSuggestions" >
-          <requestFocus />
+
+        <requestFocus />
     </EditText>
+
 </RelativeLayout>
