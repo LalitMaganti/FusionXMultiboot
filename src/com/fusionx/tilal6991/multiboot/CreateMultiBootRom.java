@@ -26,9 +26,7 @@ public class CreateMultiBootRom extends Activity {
         private final String externalPath = Environment
                 .getExternalStorageDirectory().getAbsolutePath();
 
-        private final String finalOutdir = Environment
-                .getExternalStorageDirectory().getAbsolutePath()
-                + "/multiboot/";
+        private final String finalOutdir = externalPath + "/multiboot/";
         private String inputFile;
         private final Runnable mFinish = new Runnable() {
             public void run() {
@@ -162,7 +160,19 @@ public class CreateMultiBootRom extends Activity {
                     "unmount(\"/system\");",
                     "unmount(\"/system\");\n"
                             + "run_program(\"/sbin/losetup\", \"-d\", \"/dev/block/loop0\");");
-
+            findAndReplaceInFile(
+                    updaterScript,
+                    "run_program(\"/sbin/busybox\", \"mount\", \"/system\");",
+                    "run_program(\"/sbin/losetup\", \"/dev/block/loop0\", \"/sdcard/multiboot/"
+                            + systemImageName
+                            + "\");\n"
+                            + "run_program(\"/sbin/mke2fs\", \"-T\", \"ext2\", \"/dev/block/loop0\");\n"
+                            + "run_program(\"/sbin/mount\", \"-t\", \"ext2\", \"/dev/block/loop0\", \"/system\");");
+            findAndReplaceInFile(
+                    updaterScript,
+                    "run_program(\"/sbin/busybox\", \"umount\", \"/system\");",
+                    "unmount(\"/system\");\n"
+                            + "run_program(\"/sbin/losetup\", \"-d\", \"/dev/block/loop0\");");
         }
 
         private void makeDataImage() {

@@ -19,14 +19,13 @@ public class MakeLoopGapps extends Activity {
 
     private class CreateMultibootGappsAsync extends
             AsyncTask<Bundle, String, Void> {
-        final static String dataDir = "/data/data/com.fusionx.tilal6991.multiboot/files/";
-        Bundle bundle;
-        final String externalPath = Environment.getExternalStorageDirectory()
-                .getAbsolutePath();
-        final String finalOutdir = Environment.getExternalStorageDirectory()
-                .getAbsolutePath() + "/multiboot/";
+        private final static String dataDir = "/data/data/com.fusionx.tilal6991.multiboot/files/";
+        private Bundle bundle;
+        private final String externalPath = Environment
+                .getExternalStorageDirectory().getAbsolutePath();
+        private final String finalOutdir = externalPath + "/multiboot/";
 
-        String inputFile;
+        private String inputFile;
         private final Runnable mFinished = new Runnable() {
             public void run() {
                 final Intent intent = new Intent(getApplicationContext(),
@@ -36,13 +35,13 @@ public class MakeLoopGapps extends Activity {
             }
         };
         private final Handler mHandler = new Handler();
-        String romExtractionDir;
+        private String romExtractionDir;
 
-        String romName;
+        private String romName;
 
-        String systemImageName;
+        private String systemImageName;
 
-        final String tempSdCardDir = externalPath + "/tempMultiboot/";
+        private final String tempSdCardDir = externalPath + "/tempMultiboot/";
 
         private void cleanup() {
             publishProgress("Cleaning up");
@@ -132,7 +131,19 @@ public class MakeLoopGapps extends Activity {
                     "unmount(\"/system\");",
                     "unmount(\"/system\");\n"
                             + "run_program(\"/sbin/losetup\", \"-d\", \"/dev/block/loop0\");");
-
+            findAndReplaceInFile(
+                    updaterScript,
+                    "run_program(\"/sbin/busybox\", \"mount\", \"/system\");",
+                    "run_program(\"/sbin/losetup\", \"/dev/block/loop0\", \"/sdcard/multiboot/"
+                            + systemImageName
+                            + "\");\n"
+                            + "run_program(\"/sbin/mke2fs\", \"-T\", \"ext2\", \"/dev/block/loop0\");\n"
+                            + "run_program(\"/sbin/mount\", \"-t\", \"ext2\", \"/dev/block/loop0\", \"/system\");");
+            findAndReplaceInFile(
+                    updaterScript,
+                    "run_program(\"/sbin/busybox\", \"umount\", \"/system\");",
+                    "unmount(\"/system\");\n"
+                            + "run_program(\"/sbin/losetup\", \"-d\", \"/dev/block/loop0\");");
         }
 
         @Override

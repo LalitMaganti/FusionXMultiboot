@@ -15,10 +15,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class Finalisation extends Activity {
-    Bundle b;
-    String mChosen;
+    private Bundle b;
+    private String mChosen;
 
-    public void chooseRom(final File mPath) {
+    private void chooseRom(final File mPath) {
         final FilenameFilter filter = new FilenameFilter() {
             public boolean accept(final File dir, final String filename) {
                 return filename.endsWith(".zip");
