@@ -34,32 +34,40 @@ public class Finalisation extends Activity {
         }
     }
 
-    public void chooseRom(final View v) {
-        FilenameFilter filter = new FilenameFilter() {
+    public void chooseRom(final File mPath) {
+        final FilenameFilter filter = new FilenameFilter() {
             public boolean accept(File dir, String filename) {
-                return filename.endsWith(".zip");
+                return filename.endsWith(".zip") || dir.isDirectory();
             }
         };
-        File mPath = new File(Environment.getExternalStorageDirectory()
-                .getAbsolutePath());
+
         final String[] mFileList = mPath.list(filter);
 
-        Builder builder = new Builder(this);
+        final Builder builder = new Builder(this);
         builder.setTitle("Choose your ROM");
-        builder.setItems(mPath.list(filter),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        File sel = new File(mFileList[which]);
-                        if (!(sel.isDirectory())) {
-                            mChosen = mFileList[which];
-                            TextView k = (TextView) findViewById(R.id.txtRom);
-                            k.setText(mChosen);
-                            Button l = (Button) findViewById(R.id.button1);
-                            l.setEnabled(true);
-                        }
-                    }
-                });
+
+        DialogInterface.OnClickListener k = new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                File sel = new File(mFileList[which]);
+                if (sel.isDirectory())
+                    chooseRom(new File(mPath.getAbsolutePath() + "/"
+                            + sel.getName()));
+                else {
+                    mChosen = mFileList[which];
+                    TextView k = (TextView) findViewById(R.id.txtRom);
+                    k.setText(mChosen);
+                    Button l = (Button) findViewById(R.id.button1);
+                    l.setEnabled(true);
+                }
+            }
+        };
+
+        builder.setItems(mFileList, k);
         builder.show();
+    }
+
+    public void chooseRom(final View v) {
+        chooseRom(Environment.getExternalStorageDirectory());
     }
 
     public void finish(View view) {

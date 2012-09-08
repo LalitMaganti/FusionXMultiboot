@@ -17,7 +17,6 @@ public class CommonFunctions {
             BufferedReader br = new BufferedReader(new InputStreamReader(
                     p.getInputStream()));
             DataOutputStream os = new DataOutputStream(p.getOutputStream());
-
             os.writeBytes(cmd + "\n");
             os.writeBytes("exit\n");
             os.flush();

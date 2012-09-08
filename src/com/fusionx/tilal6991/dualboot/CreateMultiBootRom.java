@@ -43,6 +43,8 @@ public class CreateMultiBootRom extends Activity {
         String systemImageName;
         String dataImageName;
 
+        boolean nandRom = false;
+
         Bundle bundle;
 
         @Override
@@ -52,6 +54,8 @@ public class CreateMultiBootRom extends Activity {
                     .getAbsolutePath() + "/" + bundle.getString("filename");
             romName = bundle.getString("filename").replace(".zip", "");
             romExtractionDir = tempSdCardDir + romName + "/";
+
+            preClean();
 
             publishProgress("Making directories");
             new File(romExtractionDir).mkdirs();
@@ -64,7 +68,6 @@ public class CreateMultiBootRom extends Activity {
             boolean data = bundle.getBoolean("createdataimage");
             boolean system = bundle.getBoolean("createsystemimage");
 
-            preClean();
             if (system)
                 makeSystemImage();
             if (data)
@@ -94,7 +97,7 @@ public class CreateMultiBootRom extends Activity {
             CommonFunctions.deleteIfExists(finalOutdir + "boot" + romName
                     + ".sh");
             CommonFunctions.deleteIfExists(finalOutdir + "boot.sh");
-            CommonFunctions.deleteIfExists(finalOutdir + "boot.img");
+
             CommonFunctions.deleteIfExists(finalOutdir + "loop-roms/" + romName
                     + "-loopinstall.zip");
             CommonFunctions.deleteIfExists(tempSdCardDir);
@@ -118,16 +121,24 @@ public class CreateMultiBootRom extends Activity {
             publishProgress("Creating loop script file");
             writeToFile(finalOutdir + "boot" + romName + ".sh", shFile);
 
-            publishProgress("Creating nand boot image");
-            CommonFunctions
-                    .runRootCommand("dd if=/dev/mtd/mtd1 of=/sdcard/multiboot/boot.img bs=4096");
+            CommonFunctions.runRootCommand("cp /init.rc " + tempSdCardDir
+                    + "currentRom.init.rc");
 
-            shFile = "#!/system/bin/sh\n"
-                    + "flash_image boot /sdcard/multiboot/boot.img\n"
-                    + "reboot";
+            if (findTextInFile(tempSdCardDir + "currentRom.init.rc",
+                    "mount ext2 loop@")) {
+                CommonFunctions.deleteIfExists(finalOutdir + "boot.img");
 
-            publishProgress("Creating nand script file");
-            writeToFile(finalOutdir + "boot.sh", shFile);
+                publishProgress("Creating nand boot image");
+                CommonFunctions
+                        .runRootCommand("dd if=/dev/mtd/mtd1 of=/sdcard/multiboot/boot.img bs=4096");
+
+                shFile = "#!/system/bin/sh\n"
+                        + "flash_image boot /sdcard/multiboot/boot.img\n"
+                        + "reboot";
+
+                publishProgress("Creating nand script file");
+                writeToFile(finalOutdir + "boot.sh", shFile);
+            }
         }
 
         private void writeToFile(String fileName, String stringToWrite) {
@@ -196,6 +207,22 @@ public class CreateMultiBootRom extends Activity {
             }
         }
 
+        private boolean findTextInFile(String fileName, String findString) {
+            try {
+                Scanner scanner = new Scanner(new File(fileName));
+                while (scanner.hasNextLine()) {
+                    String nextLine = scanner.nextLine();
+                    if (nextLine.contains(findString))
+                        return true;
+                    else
+                        return false;
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            return false;
+        }
+
         private void remakeBootImage() {
             publishProgress("Moving boot image");
             CommonFunctions.runRootCommand("cp " + romExtractionDir
@@ -232,23 +259,32 @@ public class CreateMultiBootRom extends Activity {
 
             publishProgress("Editing init.rc");
 
+            String externalDir;
+
+            if (findTextInFile(romExtractionDir + "system/build.prop",
+                    "ro.build.version.release=4.1")) {
+                externalDir = "/storage/sdcard0";
+            } else {
+                externalDir = "/sdcard";
+            }
+
             findAndReplaceInFile(tempSdCardDir + "init.rc", "on fs", "on fs\n"
-                    + "    mkdir -p /storage/sdcard0\n"
-                    + "    mount vfat /dev/block/mmcblk0p1 /storage/sdcard0");
+                    + "    mkdir -p " + externalDir + "\n"
+                    + "    mount vfat /dev/block/mmcblk0p1 " + externalDir);
 
             findAndReplaceInFile(tempSdCardDir + "init.rc",
                     "mount yaffs2 mtd@system /system ro remount",
-                    "    mount ext2 loop@/storage/sdcard0/multiboot/"
+                    "    mount ext2 loop@" + externalDir + "/multiboot/"
                             + systemImageName + " /system ro remount");
 
             findAndReplaceInFile(tempSdCardDir + "init.rc",
-                    "mount yaffs2 mtd@system /system",
-                    "    mount ext2 loop@/storage/sdcard0/multiboot/"
-                            + systemImageName + " /system");
+                    "mount yaffs2 mtd@system /system", "    mount ext2 loop@"
+                            + externalDir + "/multiboot/" + systemImageName
+                            + " /system");
 
             findAndReplaceInFile(tempSdCardDir + "init.rc",
                     "mount yaffs2 mtd@userdata /data nosuid nodev",
-                    "    mount ext2 loop@/storage/sdcard0/multiboot/"
+                    "    mount ext2 loop@" + externalDir + "/multiboot/"
                             + dataImageName + " /data nosuid nodev");
 
             CommonFunctions.runRootCommand("cp " + tempSdCardDir + "init.rc "
