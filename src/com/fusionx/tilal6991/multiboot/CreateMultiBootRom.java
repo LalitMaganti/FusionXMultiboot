@@ -44,6 +44,8 @@ public class CreateMultiBootRom extends Activity {
 
         private String systemImageName;
 
+        private String tempFlashableBootDir;
+
         private final String tempSdCardDir = externalPath + "/tempMultiboot/";
 
         private void cleanup() {
@@ -60,12 +62,16 @@ public class CreateMultiBootRom extends Activity {
                     .getAbsolutePath() + "/" + bundle.getString("filename");
             romName = bundle.getString("filename").replace(".zip", "");
             romExtractionDir = tempSdCardDir + romName + "/";
+            tempFlashableBootDir = tempSdCardDir + "tempFlashBoot/";
 
             preClean();
 
             publishProgress("Making directories");
             new File(romExtractionDir).mkdirs();
             new File(finalOutdir + "loop-roms").mkdirs();
+            new File(finalOutdir + "boot-images").mkdirs();
+            new File(tempSdCardDir
+                    + "tempFlashBoot/META-INF/com/google/android/").mkdirs();
 
             publishProgress("Getting data from wizard");
             dataImageName = bundle.getString("dataimagename");
@@ -219,7 +225,24 @@ public class CreateMultiBootRom extends Activity {
                     dataDir + "zip -r -q " + finalOutdir + "loop-roms/"
                             + romName + "-loopinstall.zip " + "*" });
 
-            publishProgress("Creating copy of loop boot image for flashing");
+            publishProgress("Creating copy of loop boot image for flashing in recovery");
+            CommonFunctions.runRootCommand("cp " + romExtractionDir
+                    + "boot.img " + tempFlashableBootDir + "boot.img");
+
+            final String updaterScriptFile = "package_extract_file(\"boot.img\", \"/tmp/boot.img\");write_raw_image(\"/tmp/boot.img\", \"boot\");";
+
+            publishProgress("Creating flashable boot image in recovery");
+            writeToFile(
+                    tempSdCardDir
+                            + "tempFlashBoot/META-INF/com/google/android/updater-script",
+                    updaterScriptFile);
+
+            CommonFunctions.runRootCommands(new String[] {
+                    "cd " + tempFlashableBootDir,
+                    dataDir + "zip -r -q " + finalOutdir + "boot-images/"
+                            + romName + "-bootimage.zip " + "*" });
+
+            publishProgress("Creating copy of loop boot image for flashing in app");
             CommonFunctions.runRootCommand("cp " + romExtractionDir
                     + "boot.img " + finalOutdir + romName + "boot.img");
 

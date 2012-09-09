@@ -13,7 +13,7 @@
         android:layout_alignParentLeft="true"
         android:layout_marginBottom="88dp"
         android:onClick="createGapps"
-        android:text="Create a new multiboot gapps" />
+        android:text="Create another type of flashable multiboot packages (eg. GApps)" />
 
     <Button
         android:id="@+id/button2"
@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/button2"
         android:layout_alignParentLeft="true"
-        android:layout_marginBottom="65dp"
+        android:layout_marginBottom="66dp"
         android:onClick="openRomBoot"
         android:text="Boot multiboot ROM" />
 

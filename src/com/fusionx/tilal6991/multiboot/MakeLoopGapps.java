@@ -47,6 +47,7 @@ public class MakeLoopGapps extends Activity {
             publishProgress("Cleaning up");
             CommonFunctions.deleteIfExists(tempSdCardDir);
             CommonFunctions.deleteIfExists(dataDir);
+            publishProgress("PLEASE FLASH THE BOOT IMAGE OF THE ROM YOU WANT TO BOOT INTO IN RECOVERY AFTER FLASHING THE PACKAGE JUST CREATED. The files can be found at /sdcard/multiboot/boot-images/");
             publishProgress("Finished!");
         }
 
@@ -151,7 +152,7 @@ public class MakeLoopGapps extends Activity {
             super.onProgressUpdate(values);
             WriteOutput(values[0]);
             if (values[0] == "Finished!")
-                mHandler.postDelayed(mFinished, 5000);
+                mHandler.postDelayed(mFinished, 15000);
         }
 
         private void packUpAndFinish() {
