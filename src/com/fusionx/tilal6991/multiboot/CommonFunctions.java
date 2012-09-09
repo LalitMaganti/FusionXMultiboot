@@ -30,12 +30,13 @@ public class CommonFunctions {
 		try {
 			final Scanner scanner = new Scanner(new File(fileName));
 			final FileWriter s = new FileWriter(new File(fileName + ".fix"));
+			boolean writtenOnce = false;
 			while (scanner.hasNextLine()) {
 				final String nextLine = scanner.nextLine();
-				if (nextLine.contains(findString)) {
+				if (nextLine.contains(findString) && writtenOnce) {
 					s.write(replaceString + "\n");
 					if (once)
-						break;
+						writtenOnce = true;
 				} else
 					s.write(nextLine + "\n");
 			}
