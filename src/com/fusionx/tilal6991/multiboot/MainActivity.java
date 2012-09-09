@@ -13,61 +13,62 @@ import android.os.Bundle;
 import android.view.View;
 
 public class MainActivity extends Activity {
-    private class CleaupAndExtract extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(final Void... arg0) {
-            CommonFunctions
-                    .deleteIfExists("/data/data/com.fusionx.tilal6991.multiboot/files/");
-            writeRawResource(R.raw.raw, "raw.tar");
-            CommonFunctions
-                    .runRootCommand("tar -zxvf /data/data/com.fusionx.tilal6991.multiboot/files/raw.tar -C /data/data/com.fusionx.tilal6991.multiboot/files/");
-            CommonFunctions
-                    .runRootCommand("chmod -R 777 /data/data/com.fusionx.tilal6991.multiboot/files/*");
-            CommonFunctions
-                    .deleteIfExists("/data/data/com.fusionx.tilal6991.multiboot/files/raw.tar");
-            return null;
-        }
-    }
+	private class CleaupAndExtract extends AsyncTask<Void, Void, Void> {
+		@Override
+		protected Void doInBackground(final Void... arg0) {
+			CommonFunctions
+					.deleteIfExists("/data/data/com.fusionx.tilal6991.multiboot/files/");
+			writeRawResource(R.raw.raw, "raw.tar");
+			CommonFunctions
+					.runRootCommand("tar -zxvf /data/data/com.fusionx.tilal6991.multiboot/files/raw.tar -C /data/data/com.fusionx.tilal6991.multiboot/files/");
+			CommonFunctions
+					.runRootCommand("chmod -R 777 /data/data/com.fusionx.tilal6991.multiboot/files/*");
+			CommonFunctions
+					.deleteIfExists("/data/data/com.fusionx.tilal6991.multiboot/files/raw.tar");
+			return null;
+		}
+	}
 
-    public void createGapps(final View view) {
-        final Intent intent = new Intent(this, Finalisation.class);
-        intent.putExtra("gapps", true);
-        startActivity(intent);
-    }
+	public void createGapps(final View view) {
+		final Intent intent = new Intent(this, Finalisation.class);
+		intent.putExtra("gapps", true);
+		startActivity(intent);
+	}
 
-    public void createRom(final View view) {
-        final Intent intent = new Intent(this, SystemPartition.class);
-        startActivity(intent);
-    }
+	public void createRom(final View view) {
+		final Intent intent = new Intent(this, SystemPartition.class);
+		intent.putExtra("gapps", false);
+		startActivity(intent);
+	}
 
-    @Override
-    public void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        new CleaupAndExtract().execute(null, null, null);
-    }
+	@Override
+	public void onCreate(final Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		new CleaupAndExtract().execute(null, null);
+	}
 
-    public void openRomBoot(final View view) {
-        final Intent intent = new Intent(this, BootRom.class);
-        startActivity(intent);
-    }
+	public void openRomBoot(final View view) {
+		final Intent intent = new Intent(this, BootRom.class);
+		startActivity(intent);
+	}
 
-    private void writeRawResource(final int resource, final String name) {
-        if (!(new File("/data/data/com.fusionx.tilal6991.multiboot/files/"
-                + name).exists()))
-            try {
-                final InputStream in = getResources().openRawResource(resource);
-                final byte[] buffer = new byte[4096];
-                final OutputStream out = openFileOutput(name,
-                        Context.MODE_PRIVATE);
-                int n = in.read(buffer, 0, buffer.length);
-                while (n >= 0) {
-                    out.write(buffer, 0, n);
-                    n = in.read(buffer, 0, buffer.length);
-                }
-                in.close();
-                out.close();
-            } catch (final IOException e) {
-            }
-    }
+	private void writeRawResource(final int resource, final String name) {
+		if (!new File("/data/data/com.fusionx.tilal6991.multiboot/files/"
+				+ name).exists())
+			try {
+				final InputStream in = getResources().openRawResource(resource);
+				final byte[] buffer = new byte[4096];
+				final OutputStream out = openFileOutput(name,
+						Context.MODE_PRIVATE);
+				int n = in.read(buffer, 0, buffer.length);
+				while (n >= 0) {
+					out.write(buffer, 0, n);
+					n = in.read(buffer, 0, buffer.length);
+				}
+				in.close();
+				out.close();
+			} catch (final IOException e) {
+			}
+	}
 }
