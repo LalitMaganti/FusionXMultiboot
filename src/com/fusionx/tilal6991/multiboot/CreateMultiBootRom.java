@@ -93,7 +93,7 @@ public class CreateMultiBootRom extends Activity {
         }
 
         private void extractRom() {
-            publishProgress("Extracting ROM");
+            publishProgress("Extracting ROM - this may take quite some time");
             CommonFunctions.runRootCommand(dataDir + "busybox unzip -q "
                     + inputFile + " -d " + romExtractionDir);
         }
@@ -182,7 +182,7 @@ public class CreateMultiBootRom extends Activity {
         }
 
         private void makeDataImage() {
-            publishProgress("Making data image");
+            publishProgress("Making data image - this may take quite some time");
             makeImage(finalOutdir + dataImageName,
                     Integer.parseInt(bundle.getString("dataimagesize")) * 1024);
         }
@@ -204,7 +204,7 @@ public class CreateMultiBootRom extends Activity {
         }
 
         private void makeSystemImage() {
-            publishProgress("Making system image");
+            publishProgress("Making system image - this may take quite some time");
             makeImage(
                     finalOutdir + systemImageName,
                     Integer.parseInt(bundle.getString("systemimagesize")) * 1024);
@@ -219,7 +219,7 @@ public class CreateMultiBootRom extends Activity {
         }
 
         private void packUpAndFinish() {
-            publishProgress("Making ROM zip");
+            publishProgress("Making ROM zip - this may take quite some time");
             CommonFunctions.runRootCommands(new String[] {
                     "cd " + romExtractionDir,
                     dataDir + "zip -r -q " + finalOutdir + "loop-roms/"
