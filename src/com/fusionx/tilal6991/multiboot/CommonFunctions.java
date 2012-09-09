@@ -33,7 +33,7 @@ public class CommonFunctions {
 			boolean writtenOnce = false;
 			while (scanner.hasNextLine()) {
 				final String nextLine = scanner.nextLine();
-				if (nextLine.contains(findString) && writtenOnce) {
+				if (nextLine.contains(findString) && !writtenOnce) {
 					s.write(replaceString + "\n");
 					if (once)
 						writtenOnce = true;
