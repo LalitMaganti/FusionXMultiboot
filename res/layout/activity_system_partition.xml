@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/RelativeLayout1"
@@ -13,7 +14,7 @@
         android:layout_alignParentTop="true"
         android:checked="true"
         android:onClick="changeEnable"
-        android:text="Do you want to make an image file to hold the system for this ROM? (not neccessary if it&apos;s an upgrade from a previous ROM)" />
+        android:text="@string/button_make_image_to_hold_system" />
 
     <TextView
         android:id="@+id/textView2"
@@ -21,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_marginTop="104dp"
-        android:text="System Image Name"
+        android:text="@string/label_system_image_name"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -30,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginTop="126dp"
-        android:text="System Image Size (in MB)"
+        android:text="@string/label_system_image_size"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Button
@@ -60,8 +61,9 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/textView2"
         android:ems="10"
-        android:inputType="textNoSuggestions">
-          <requestFocus />
-        </EditText>
+        android:inputType="textNoSuggestions" >
+
+        <requestFocus />
+    </EditText>
 
 </RelativeLayout>

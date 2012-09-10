@@ -16,14 +16,14 @@ public class MainActivity extends Activity {
 	private class CleaupAndExtract extends AsyncTask<Void, Void, Void> {
 		@Override
 		protected Void doInBackground(final Void... arg0) {
-			CommonFunctions
+			CommonMultibootBase
 					.deleteIfExists("/data/data/com.fusionx.tilal6991.multiboot/files/");
 			writeRawResource(R.raw.raw, "raw.tar");
-			CommonFunctions
+			CommonMultibootBase
 					.runRootCommand("tar -zxvf /data/data/com.fusionx.tilal6991.multiboot/files/raw.tar -C /data/data/com.fusionx.tilal6991.multiboot/files/");
-			CommonFunctions
+			CommonMultibootBase
 					.runRootCommand("chmod -R 777 /data/data/com.fusionx.tilal6991.multiboot/files/*");
-			CommonFunctions
+			CommonMultibootBase
 					.deleteIfExists("/data/data/com.fusionx.tilal6991.multiboot/files/raw.tar");
 			return null;
 		}

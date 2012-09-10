@@ -3,9 +3,7 @@
     android:versionCode="2"
     android:versionName="2.5.0" >
 
-    <uses-sdk
-        android:minSdkVersion="10"
-        android:targetSdkVersion="15" />
+    <uses-sdk android:minSdkVersion="10" />
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -71,7 +69,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".CreateMultiBootRom"
+            android:name=".CreateRom"
             android:configChanges="orientation"
             android:label="@string/title_activity_make_multi_boot_rom"
             android:screenOrientation="portrait" >
@@ -80,12 +78,21 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MakeLoopGapps"
+            android:name=".CreateOther"
             android:configChanges="orientation"
             android:label="@string/title_activity_make_loop_gapps"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".CreateNand"
+            android:label="@string/title_activity_create_from_nand" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>

@@ -6,32 +6,42 @@
     android:orientation="vertical" >
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/button1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginBottom="88dp"
-        android:onClick="createGapps"
-        android:text="Create another type of flashable multiboot packages (eg. GApps)" />
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="40dp"
+        android:onClick="openRomBoot"
+        android:text="@string/button_boot_multiboot_rom" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/Button01"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:onClick="createRom"
-        android:text="Create a new multiboot rom" />
+        android:text="@string/button_create_a_new_multiboot_rom" />
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/button_create_new_rom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/button2"
+        android:layout_above="@+id/Button01"
         android:layout_alignParentLeft="true"
-        android:layout_marginBottom="66dp"
-        android:onClick="openRomBoot"
-        android:text="Boot multiboot ROM" />
+        android:layout_marginBottom="35dp"
+        android:onClick="createRom"
+        android:text="@string/button_create_multiboot_rom_from_nand" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/Button01"
+        android:layout_marginTop="35dp"
+        android:onClick="createGapps"
+        android:text="@string/button_create_another_flashable_multiboot" />
 
 </RelativeLayout>

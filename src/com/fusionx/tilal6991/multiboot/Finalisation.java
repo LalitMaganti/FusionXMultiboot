@@ -50,12 +50,12 @@ public class Finalisation extends Activity {
 	public void finish(final View view) {
 		Intent intent;
 		if (b.getBoolean("gapps") == true) {
-			intent = new Intent(this, MakeLoopGapps.class);
+			intent = new Intent(this, CreateOther.class);
 			intent.putExtra("systemimagename",
 					((EditText) findViewById(R.id.edtSystem)).getText()
 							.toString());
 		} else {
-			intent = new Intent(this, CreateMultiBootRom.class);
+			intent = new Intent(this, CreateRom.class);
 			if (b.getBoolean("createdataimage") == false)
 				intent.putExtra("dataimagename",
 						((EditText) findViewById(R.id.edtData)).getText()

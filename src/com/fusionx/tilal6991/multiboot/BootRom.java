@@ -41,8 +41,8 @@ public class BootRom extends Activity {
 		if (root.exists()) {
 			final String files[] = root.list(audioFilter);
 
-			CommonFunctions
-					.runRootCommand("chmod 777 " + multibootdir + "*.sh");
+			CommonMultibootBase.runRootCommand("chmod 777 " + multibootdir
+					+ "*.sh");
 
 			for (final String file : files) {
 				final Button btn = new Button(this);
@@ -52,7 +52,7 @@ public class BootRom extends Activity {
 					@Override
 					public void onClick(final View v) {
 						DisplayToast("Rebooting into specified ROM");
-						CommonFunctions.runRootCommand("sh " + multibootdir
+						CommonMultibootBase.runRootCommand("sh " + multibootdir
 								+ file);
 					}
 				});

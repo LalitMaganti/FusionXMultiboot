@@ -9,4 +9,15 @@
     <string name="button_next">Next</string>
     <string name="button_finish">Finish</string>
     <string name="title_activity_make_loop_gapps">Make Multiboot Gapps</string>
+    <string name="button_create_another_flashable_multiboot">Create another type of flashable multiboot packages (eg. GApps)</string>
+    <string name="button_create_a_new_multiboot_rom">Create a new multiboot rom</string>
+    <string name="button_boot_multiboot_rom">Boot multiboot ROM</string>
+    <string name="button_create_multiboot_rom_from_nand">Create a new multiboot ROM from the Nand</string>
+    <string name="button_make_image_to_hold_system">Do you want to make an image file to hold the system for this ROM? (not neccessary if it&amp;apos;s an upgrade from a previous ROM)</string>
+    <string name="label_system_image_name">System Image Name</string>
+    <string name="label_system_image_size">System Image Size (in MB)</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_create_from_nand">CreateFromNand</string>
+
 </resources>
