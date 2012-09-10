@@ -49,7 +49,7 @@ public class Finalisation extends Activity {
 
 	public void finish(final View view) {
 		Intent intent;
-		if (b.getBoolean("gapps") == true) {
+		if (b.getString("type") == "gapps") {
 			intent = new Intent(this, CreateOther.class);
 			intent.putExtra("systemimagename",
 					((EditText) findViewById(R.id.edtSystem)).getText()
@@ -76,18 +76,15 @@ public class Finalisation extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_finalisation);
 		b = getIntent().getExtras();
-		if (b.getBoolean("gapps") == true) {
+		if (b.getString("type") == "gapps") {
 			findViewById(R.id.edtData).setVisibility(4);
 			findViewById(R.id.txtData).setVisibility(4);
-		} else {
-			if (b.getBoolean("createdataimage") == true) {
-				findViewById(R.id.edtData).setVisibility(4);
-				findViewById(R.id.txtData).setVisibility(4);
-			}
-			if (b.getBoolean("createsystemimage") == true) {
-				findViewById(R.id.edtSystem).setVisibility(4);
-				findViewById(R.id.txtSystem).setVisibility(4);
-			}
+		} else if (b.getBoolean("createdataimage") == true) {
+			findViewById(R.id.edtData).setVisibility(4);
+			findViewById(R.id.txtData).setVisibility(4);
+		} else if (b.getBoolean("createsystemimage") == true) {
+			findViewById(R.id.edtSystem).setVisibility(4);
+			findViewById(R.id.txtSystem).setVisibility(4);
 		}
 	}
 }

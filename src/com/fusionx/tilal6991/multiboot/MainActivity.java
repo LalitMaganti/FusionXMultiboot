@@ -31,13 +31,13 @@ public class MainActivity extends Activity {
 
 	public void createGapps(final View view) {
 		final Intent intent = new Intent(this, Finalisation.class);
-		intent.putExtra("gapps", true);
+		intent.putExtra("type", "gapps");
 		startActivity(intent);
 	}
 
 	public void createRom(final View view) {
 		final Intent intent = new Intent(this, SystemPartition.class);
-		intent.putExtra("gapps", false);
+		intent.putExtra("type", "normal");
 		startActivity(intent);
 	}
 
