@@ -2,7 +2,6 @@ package com.fusionx.tilal6991.multiboot;
 
 import java.io.File;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -11,15 +10,6 @@ public class CreateOther extends CommonMultibootBase {
 
 	private class CreateMultibootGappsAsync extends
 			AsyncTask<Bundle, String, Void> {
-		private final Runnable mFinished = new Runnable() {
-			@Override
-			public void run() {
-				final Intent intent = new Intent(getApplicationContext(),
-						MainActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
-			}
-		};
 
 		private void cleanup() {
 			publishProgress("Cleaning up");
@@ -55,7 +45,7 @@ public class CreateOther extends CommonMultibootBase {
 		}
 
 		private void extractRom() {
-			publishProgress("Extracting ROM");
+			publishProgress("Extracting misc package file");
 			runRootCommand(dataDir + "busybox unzip -q " + inputFile + " -d "
 					+ romExtractionDir);
 		}
@@ -65,11 +55,11 @@ public class CreateOther extends CommonMultibootBase {
 			super.onProgressUpdate(values);
 			WriteOutput(values[0]);
 			if (values[0] == "Finished!")
-				mHandler.postDelayed(mFinished, 15000);
+				mHandler.postDelayed(mFinish, 15000);
 		}
 
 		private void packUpAndFinish() {
-			publishProgress("Making ROM zip");
+			publishProgress("Making package zip");
 			runRootCommands(new String[] {
 					"cd " + romExtractionDir,
 					dataDir + "zip -r -q " + finalOutdir + "loop-roms/"

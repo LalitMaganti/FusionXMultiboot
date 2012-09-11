@@ -1,7 +1,5 @@
 package com.fusionx.tilal6991.multiboot;
 
-import java.io.File;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -26,15 +24,6 @@ public class CreateRom extends CommonMultibootBase {
 			romExtractionDir = tempSdCardDir + romName + "/";
 			tempFlashableBootDir = tempSdCardDir + "tempFlashBoot/";
 
-			preClean();
-
-			publishProgress("Making directories");
-			new File(romExtractionDir).mkdirs();
-			new File(finalOutdir + "loop-roms").mkdirs();
-			new File(finalOutdir + "boot-images").mkdirs();
-			new File(tempSdCardDir
-					+ "tempFlashBoot/META-INF/com/google/android/").mkdirs();
-
 			publishProgress("Getting data from wizard");
 			dataImageName = bundle.getString("dataimagename");
 			systemImageName = bundle.getString("systemimagename");
@@ -42,14 +31,26 @@ public class CreateRom extends CommonMultibootBase {
 			final boolean data = bundle.getBoolean("createdataimage");
 			final boolean system = bundle.getBoolean("createsystemimage");
 
+			publishProgress("Running a preclean");
+			preClean();
+
+			publishProgress("Making directories");
+			makeDirectories();
+
 			if (system)
 				makeSystemImage();
 			if (data)
 				makeDataImage();
+
 			extractRom();
+
 			remakeBootImage();
+
+			publishProgress("Editing updater script");
 			fixUpdaterScript();
+
 			packUpAndFinish();
+
 			cleanup();
 			return null;
 		}
@@ -58,11 +59,6 @@ public class CreateRom extends CommonMultibootBase {
 			publishProgress("Extracting ROM - this may take quite some time");
 			runRootCommand(dataDir + "busybox unzip -q " + inputFile + " -d "
 					+ romExtractionDir);
-		}
-
-		private void fixUpdaterScript() {
-			publishProgress("Editing updater script");
-			fixUpdaterScript();
 		}
 
 		private void makeDataImage() {
@@ -164,16 +160,7 @@ public class CreateRom extends CommonMultibootBase {
 			}
 		}
 
-		private void preClean() {
-			publishProgress("Running a preclean");
-			deleteIfExists(finalOutdir + romName + "boot.img");
-			deleteIfExists(finalOutdir + "boot" + romName + ".sh");
-			deleteIfExists(finalOutdir + "loop-roms/" + romName
-					+ "-loopinstall.zip");
-			deleteIfExists(tempSdCardDir);
-		}
-
-		protected void remakeBootImage() {
+		private void remakeBootImage() {
 			publishProgress("Moving boot image");
 			moveBootImage();
 

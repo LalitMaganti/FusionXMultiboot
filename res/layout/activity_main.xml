@@ -25,16 +25,6 @@
         android:text="@string/button_create_a_new_multiboot_rom" />
 
     <Button
-        android:id="@+id/button_create_new_rom"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/Button01"
-        android:layout_alignParentLeft="true"
-        android:layout_marginBottom="35dp"
-        android:onClick="createRom"
-        android:text="@string/button_create_multiboot_rom_from_nand" />
-
-    <Button
         android:id="@+id/button2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -43,5 +33,15 @@
         android:layout_marginTop="35dp"
         android:onClick="createGapps"
         android:text="@string/button_create_another_flashable_multiboot" />
+
+    <Button
+        android:id="@+id/button_create_from_nand"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/Button01"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="29dp"
+        android:onClick="createRom"
+        android:text="@string/button_create_multiboot_rom_from_nand" />
 
 </RelativeLayout>

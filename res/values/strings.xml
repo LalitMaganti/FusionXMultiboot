@@ -1,8 +1,7 @@
 <resources>
-
     <string name="app_name">FusionX Multiboot</string>
     <string name="title_activity_main">FusionX Multiboot</string>
-    <string name="title_activity_make_multi_boot_rom">Make Multiboot Rom</string>
+    <string name="title_activity_make_multi_boot_rom">Create Multiboot Rom</string>
     <string name="title_activity_system_partition">System Image</string>
     <string name="title_activity_data_partition">Data Image</string>
     <string name="title_activity_finalisation">Finalisation</string>
@@ -13,11 +12,8 @@
     <string name="button_create_a_new_multiboot_rom">Create a new multiboot rom</string>
     <string name="button_boot_multiboot_rom">Boot multiboot ROM</string>
     <string name="button_create_multiboot_rom_from_nand">Create a new multiboot ROM from the Nand</string>
-    <string name="button_make_image_to_hold_system">Do you want to make an image file to hold the system for this ROM? (not neccessary if it&amp;apos;s an upgrade from a previous ROM)</string>
+    <string name="button_make_image_to_hold_system">Do you want to make an image file to hold the system for this ROM? (not neccessary if it is an upgrade from a previous ROM)</string>
     <string name="label_system_image_name">System Image Name</string>
     <string name="label_system_image_size">System Image Size (in MB)</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="menu_settings">Settings</string>
-    <string name="title_activity_create_from_nand">CreateFromNand</string>
-
+    <string name="title_activity_create_from_nand">Create Multiboot ROM From Nand</string>
 </resources>

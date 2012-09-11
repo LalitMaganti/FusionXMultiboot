@@ -31,7 +31,7 @@ public class MainActivity extends Activity {
 
 	public void createGapps(final View view) {
 		final Intent intent = new Intent(this, Finalisation.class);
-		intent.putExtra("type", "gapps");
+		intent.putExtra("gapps", true);
 		startActivity(intent);
 	}
 
@@ -45,6 +45,12 @@ public class MainActivity extends Activity {
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		CommonMultibootBase
+				.runRootCommand("cp /init.rc /sdcard/currentRom.init.rc");
+
+		if (!CommonMultibootBase.findTextInFile("/sdcard/currentRom.init.rc",
+				"mount ext2 loop@"))
+			findViewById(R.id.button_create_from_nand).setVisibility(4);
 		new CleaupAndExtract().execute(null, null);
 	}
 

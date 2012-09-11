@@ -49,7 +49,7 @@ public class Finalisation extends Activity {
 
 	public void finish(final View view) {
 		Intent intent;
-		if (b.getString("type") == "gapps") {
+		if (b.getBoolean("gapps") == true) {
 			intent = new Intent(this, CreateOther.class);
 			intent.putExtra("systemimagename",
 					((EditText) findViewById(R.id.edtSystem)).getText()
@@ -76,7 +76,7 @@ public class Finalisation extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_finalisation);
 		b = getIntent().getExtras();
-		if (b.getString("type") == "gapps") {
+		if (b.getBoolean("gapps") == true) {
 			findViewById(R.id.edtData).setVisibility(4);
 			findViewById(R.id.txtData).setVisibility(4);
 		} else if (b.getBoolean("createdataimage") == true) {

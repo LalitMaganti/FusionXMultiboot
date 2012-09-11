@@ -19,8 +19,8 @@ import android.util.Log;
 import android.widget.TextView;
 
 public class CommonMultibootBase extends Activity {
-	protected static final String dataDir = "/data/data/com.fusionx.tilal6991.multiboot/files/";
-	protected static final String TAG = "FusionXMultiboot";
+	public static final String dataDir = "/data/data/com.fusionx.tilal6991.multiboot/files/";
+	public static final String TAG = "FusionXMultiboot";
 
 	static void deleteIfExists(final String fileName) {
 		if (new File(fileName).exists())
@@ -55,6 +55,21 @@ public class CommonMultibootBase extends Activity {
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	protected static boolean findTextInFile(final String fileName,
+			final String findString) {
+		try {
+			final Scanner scanner = new Scanner(new File(fileName));
+			while (scanner.hasNextLine()) {
+				final String nextLine = scanner.nextLine();
+				if (nextLine.contains(findString))
+					return true;
+			}
+		} catch (final FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	static String runRootCommand(final String cmd) {
@@ -93,6 +108,7 @@ public class CommonMultibootBase extends Activity {
 	}
 
 	String base;
+
 	protected Bundle bundle;
 
 	String commandLine;
@@ -179,23 +195,6 @@ public class CommonMultibootBase extends Activity {
 		deleteIfExists(dataDir + "boot.img-ramdisk/init.rc");
 	}
 
-	protected boolean findTextInFile(final String fileName,
-			final String findString) {
-		try {
-			final Scanner scanner = new Scanner(new File(fileName));
-			while (scanner.hasNextLine()) {
-				final String nextLine = scanner.nextLine();
-				if (nextLine.contains(findString))
-					return true;
-				else
-					return false;
-			}
-		} catch (final FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		return false;
-	}
-
 	protected void fixUpdaterScript() {
 		String findString = null;
 		final String updaterScript = romExtractionDir
@@ -206,7 +205,14 @@ public class CommonMultibootBase extends Activity {
 				findString = scanner.nextLine();
 				if (findString.contains("format(")
 						&& findString.contains("\"MTD\", \"system\""))
-					findAndReplaceInFile(updaterScript, findString, "");
+					findAndReplaceInFile(
+							updaterScript,
+							findString,
+							"run_program(\"/sbin/losetup\", \"/dev/block/loop0\", \"/sdcard/multiboot/"
+									+ systemImageName
+									+ "\");\n"
+									+ "run_program(\"/sbin/mke2fs\", \"-T\", \"ext2\", \"/dev/block/loop0\");\n"
+									+ "run_program(\"/sbin/losetup\", \"-d\", \"/dev/block/loop0\");");
 				else if (findString.contains("format(")
 						&& findString.contains("\"MTD\", \"userdata\""))
 					findAndReplaceInFile(updaterScript, findString, "");
@@ -218,7 +224,6 @@ public class CommonMultibootBase extends Activity {
 							"run_program(\"/sbin/losetup\", \"/dev/block/loop0\", \"/sdcard/multiboot/"
 									+ systemImageName
 									+ "\");\n"
-									+ "run_program(\"/sbin/mke2fs\", \"-T\", \"ext2\", \"/dev/block/loop0\");\n"
 									+ "run_program(\"/sbin/mount\", \"-t\", \"ext2\", \"/dev/block/loop0\", \"/system\");");
 			}
 		} catch (final FileNotFoundException e) {
@@ -264,6 +269,14 @@ public class CommonMultibootBase extends Activity {
 						+ romExtractionDir + "boot.img" });
 	}
 
+	protected void makeDirectories() {
+		new File(romExtractionDir).mkdirs();
+		new File(finalOutdir + "loop-roms").mkdirs();
+		new File(finalOutdir + "boot-images").mkdirs();
+		new File(tempSdCardDir + "tempFlashBoot/META-INF/com/google/android/")
+				.mkdirs();
+	}
+
 	protected void makeRamdisk() {
 		makeRamdisk();
 		runRootCommands(new String[] { "cd " + dataDir,
@@ -284,6 +297,14 @@ public class CommonMultibootBase extends Activity {
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_make_somthing);
+	}
+
+	protected void preClean() {
+		deleteIfExists(finalOutdir + romName + "boot.img");
+		deleteIfExists(finalOutdir + "boot" + romName + ".sh");
+		deleteIfExists(finalOutdir + "loop-roms/" + romName
+				+ "-loopinstall.zip");
+		deleteIfExists(tempSdCardDir);
 	}
 
 	protected String runRootCommands(final String[] cmd) {
