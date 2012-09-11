@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
 		CommonMultibootBase
 				.runRootCommand("cp /init.rc /sdcard/currentRom.init.rc");
 
-		if (!CommonMultibootBase.findTextInFile("/sdcard/currentRom.init.rc",
+		if (CommonMultibootBase.findTextInFile("/sdcard/currentRom.init.rc",
 				"mount ext2 loop@"))
 			findViewById(R.id.button_create_from_nand).setVisibility(4);
 		new CleaupAndExtract().execute(null, null);

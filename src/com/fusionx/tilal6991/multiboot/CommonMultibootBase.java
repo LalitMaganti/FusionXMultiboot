@@ -241,7 +241,6 @@ public class CommonMultibootBase extends Activity {
 				"run_program(\"/sbin/losetup\", \"/dev/block/loop0\", \"/sdcard/multiboot/"
 						+ systemImageName
 						+ "\");\n"
-						+ "run_program(\"/sbin/mke2fs\", \"-T\", \"ext2\", \"/dev/block/loop0\");\n"
 						+ "run_program(\"/sbin/mount\", \"-t\", \"ext2\", \"/dev/block/loop0\", \"/system\");");
 		findAndReplaceInFile(
 				updaterScript,
