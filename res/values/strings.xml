@@ -11,9 +11,9 @@
     <string name="button_create_another_flashable_multiboot">Create another type of flashable multiboot packages (eg. GApps)</string>
     <string name="button_create_a_new_multiboot_rom">Create a new multiboot rom</string>
     <string name="button_boot_multiboot_rom">Boot multiboot ROM</string>
-    <string name="button_create_multiboot_rom_from_nand">Create a new multiboot ROM from the Nand</string>
+    <string name="button_create_multiboot_rom_from_nand">Create a new multiboot ROM from the NAND</string>
     <string name="button_make_image_to_hold_system">Do you want to make an image file to hold the system for this ROM? (not neccessary if it is an upgrade from a previous ROM)</string>
     <string name="label_system_image_name">System Image Name</string>
     <string name="label_system_image_size">System Image Size (in MB)</string>
-    <string name="title_activity_create_from_nand">Create Multiboot ROM From Nand</string>
+    <string name="title_activity_create_from_nand">Create Multiboot ROM From NAND</string>
 </resources>

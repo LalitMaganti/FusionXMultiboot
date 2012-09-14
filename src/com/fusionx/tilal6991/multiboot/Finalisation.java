@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,17 +16,22 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class Finalisation extends Activity {
+	static final int DIALOG_LACK_OF_SYSTEM_IMAGE = 0;
 	private Bundle b;
+
 	private String mChosen;
 
 	private void chooseRom(final File mPath) {
 		final FilenameFilter filter = new FilenameFilter() {
 			@Override
 			public boolean accept(final File dir, final String filename) {
-				return filename.endsWith(".zip");
+				return filename.endsWith(".zip")
+						|| new File(dir.getAbsolutePath() + "/" + filename)
+								.isDirectory();
 			}
 		};
 		final String[] mFileList = mPath.list(filter);
+		java.util.Arrays.sort(mFileList, String.CASE_INSENSITIVE_ORDER);
 
 		final Builder builder = new Builder(this);
 		builder.setTitle("Choose your ROM");
@@ -32,11 +39,17 @@ public class Finalisation extends Activity {
 		final DialogInterface.OnClickListener k = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(final DialogInterface dialog, final int which) {
-				mChosen = mFileList[which];
-				final TextView k = (TextView) findViewById(R.id.txtRom);
-				k.setText(mChosen);
-				findViewById(R.id.button1).setEnabled(true);
-				return;
+				mChosen = mPath + "/" + mFileList[which];
+				final File j = new File(mChosen);
+				if (j.isDirectory())
+					chooseRom(j);
+				else {
+					final TextView k = (TextView) findViewById(R.id.txtRom);
+					k.setText(mChosen);
+					mChosen = mFileList[which];
+					findViewById(R.id.button1).setEnabled(true);
+					return;
+				}
 			}
 		};
 		builder.setItems(mFileList, k);
@@ -48,22 +61,38 @@ public class Finalisation extends Activity {
 	}
 
 	public void finish(final View view) {
-		Intent intent;
+		final String systemImage = ((EditText) findViewById(R.id.edtSystem))
+				.getText().toString();
+		final String dataImage = ((EditText) findViewById(R.id.edtData))
+				.getText().toString();
+		Intent intent = null;
 		if (b.getBoolean("gapps") == true) {
 			intent = new Intent(this, CreateOther.class);
-			intent.putExtra("systemimagename",
-					((EditText) findViewById(R.id.edtSystem)).getText()
-							.toString());
+			if (new File(Environment.getExternalStorageDirectory()
+					+ "/multiboot/" + systemImage).exists())
+				intent.putExtra("systemimagename", systemImage);
+			else {
+				onCreateDialog(DIALOG_LACK_OF_SYSTEM_IMAGE);
+				return;
+			}
 		} else {
 			intent = new Intent(this, CreateRom.class);
 			if (b.getBoolean("createdataimage") == false)
-				intent.putExtra("dataimagename",
-						((EditText) findViewById(R.id.edtData)).getText()
-								.toString());
+				if (new File(Environment.getExternalStorageDirectory()
+						+ "/multiboot/" + dataImage).exists())
+					intent.putExtra("dataimagename", dataImage);
+				else {
+					onCreateDialog(DIALOG_LACK_OF_SYSTEM_IMAGE);
+					return;
+				}
 			if (b.getBoolean("createsystemimage") == false)
-				intent.putExtra("systemimagename",
-						((EditText) findViewById(R.id.edtSystem)).getText()
-								.toString());
+				if (new File(Environment.getExternalStorageDirectory()
+						+ "/multiboot/" + systemImage).exists())
+					intent.putExtra("dataimagename", systemImage);
+				else {
+					onCreateDialog(DIALOG_LACK_OF_SYSTEM_IMAGE);
+					return;
+				}
 		}
 		intent.putExtra("filename", mChosen);
 		intent.putExtras(getIntent().getExtras());
@@ -86,5 +115,30 @@ public class Finalisation extends Activity {
 			findViewById(R.id.edtSystem).setVisibility(4);
 			findViewById(R.id.txtSystem).setVisibility(4);
 		}
+	}
+
+	@Override
+	protected Dialog onCreateDialog(final int id) {
+		Dialog dialog = null;
+		switch (id) {
+		case DIALOG_LACK_OF_SYSTEM_IMAGE:
+			final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setMessage("One of the images doesn't exist!")
+					.setCancelable(false)
+					.setPositiveButton("OK",
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(
+										final DialogInterface dialog,
+										final int id) {
+								}
+							});
+			final AlertDialog alert = builder.create();
+			alert.show();
+			break;
+		default:
+			dialog = null;
+		}
+		return dialog;
 	}
 }
