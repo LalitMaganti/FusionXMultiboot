@@ -53,6 +53,8 @@ public class MainActivity extends Activity {
 			findViewById(R.id.button_create_from_nand).setVisibility(
 					View.INVISIBLE);
 		CommonMultibootBase.deleteIfExists("/sdcard/currentRom.init.rc");
+		findViewById(R.id.button_create_from_nand).setVisibility(
+				View.INVISIBLE);
 		new CleaupAndExtract().execute(null, null);
 	}
 
