@@ -6,7 +6,7 @@
     <string name="title_activity_data_partition">Data Image</string>
     <string name="title_activity_finalisation">Finalisation</string>
     <string name="button_next">Next</string>
-    <string name="button_finish">Finish</string>
+    <string name="button_finish">Finish Setup</string>
     <string name="title_activity_make_loop_gapps">Make Multiboot Gapps</string>
     <string name="button_create_another_flashable_multiboot">Create another type of flashable multiboot packages (eg. GApps)</string>
     <string name="button_create_a_new_multiboot_rom">Create a new multiboot rom</string>
@@ -16,4 +16,10 @@
     <string name="label_system_image_name">System Image Name</string>
     <string name="label_system_image_size">System Image Size (in MB)</string>
     <string name="title_activity_create_from_nand">Create Multiboot ROM From NAND</string>
+    <string name="string_make_an_image_file_to_hold_the_data">Do you want to make an image file to hold the data for this ROM? (not neccessary if it&amp;apos;s an upgrade from a previous ROM or you want to share a data image with another ROM)</string>
+    <string name="string_data_image_name">Data Image Name</string>
+    <string name="string_data_image_size">Data Image Size (in MB)</string>
+    <string name="string_name_of_system_image">Name of system image. WARNING - if this is wrong, the ROM will not boot</string>
+    <string name="string_choose_rom">Choose ROM</string>
+    <string name="string_name_of_data_image">Name of data image. WARNING - if this is wrong, the ROM will not boot</string>
 </resources>

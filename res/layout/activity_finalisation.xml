@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:text="Name of system image. WARNING - if this is wrong, the ROM will not boot"
+        android:text="@string/string_name_of_system_image"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Button
@@ -21,7 +21,7 @@
         android:layout_alignParentRight="true"
         android:onClick="finish"
         android:enabled="false"
-        android:text="Finish Setup" />
+        android:text="@string/button_finish" />
 
     <EditText
         android:id="@+id/edtSystem"
@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/edtSystem"
-        android:text="Name of data image. WARNING - if this is wrong, the ROM will not boot"
+        android:text="@string/string_name_of_data_image"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <EditText
@@ -58,7 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/edtData"
-        android:text="Choose ROM"
+        android:text="@string/string_choose_rom"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <Button
@@ -68,6 +68,6 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:onClick="chooseRom"
-        android:text="Choose ROM" />
+        android:text="@string/string_choose_rom" />
 
 </RelativeLayout>

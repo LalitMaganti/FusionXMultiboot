@@ -127,13 +127,12 @@ public class Finalisation extends Activity {
 								public void onClick(
 										final DialogInterface dialog,
 										final int id) {
+									return;
 								}
 							});
 			final AlertDialog alert = builder.create();
 			alert.show();
 			break;
-		default:
-			dialog = null;
 		}
 		return dialog;
 	}

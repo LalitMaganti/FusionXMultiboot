@@ -13,7 +13,7 @@
         android:layout_alignParentTop="true"
         android:checked="true"
         android:onClick="changeEnable"
-        android:text="Do you want to make an image file to hold the data for this ROM? (not neccessary if it&apos;s an upgrade from a previous ROM or you want to share a data image with another ROM)" />
+        android:text="@string/string_make_an_image_file_to_hold_the_data" />
 
     <TextView
         android:id="@+id/textView2"
@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_marginTop="104dp"
-        android:text="Data Image Name"
+        android:text="@string/string_data_image_name"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginTop="126dp"
-        android:text="Data Image Size (in MB)"
+        android:text="@string/string_data_image_size"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Button
