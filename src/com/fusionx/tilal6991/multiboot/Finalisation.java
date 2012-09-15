@@ -39,14 +39,12 @@ public class Finalisation extends Activity {
 		final DialogInterface.OnClickListener k = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(final DialogInterface dialog, final int which) {
-				mChosen = mPath + "/" + mFileList[which];
-				final File j = new File(mChosen);
-				if (j.isDirectory())
-					chooseRom(j);
+				mChosen = mFileList[which];
+				final File file = new File(mPath + "/" + mChosen);
+				if (file.isDirectory())
+					chooseRom(file);
 				else {
-					final TextView k = (TextView) findViewById(R.id.txtRom);
-					k.setText(mChosen);
-					mChosen = mFileList[which];
+					((TextView) findViewById(R.id.txtRom)).setText(file.getAbsolutePath());
 					findViewById(R.id.button1).setEnabled(true);
 					return;
 				}
@@ -88,7 +86,7 @@ public class Finalisation extends Activity {
 			if (b.getBoolean("createsystemimage") == false)
 				if (new File(Environment.getExternalStorageDirectory()
 						+ "/multiboot/" + systemImage).exists())
-					intent.putExtra("dataimagename", systemImage);
+					intent.putExtra("systemimagename", systemImage);
 				else {
 					onCreateDialog(DIALOG_LACK_OF_SYSTEM_IMAGE);
 					return;
@@ -105,13 +103,11 @@ public class Finalisation extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_finalisation);
 		b = getIntent().getExtras();
-		if (b.getBoolean("gapps") == true) {
+		if ((b.getBoolean("gapps") == true) || (b.getBoolean("createdataimage") == true)) {
 			findViewById(R.id.edtData).setVisibility(4);
 			findViewById(R.id.txtData).setVisibility(4);
-		} else if (b.getBoolean("createdataimage") == true) {
-			findViewById(R.id.edtData).setVisibility(4);
-			findViewById(R.id.txtData).setVisibility(4);
-		} else if (b.getBoolean("createsystemimage") == true) {
+		}
+	    if (!(b.getBoolean("gapps") == true) && (b.getBoolean("createsystemimage") == true)) {
 			findViewById(R.id.edtSystem).setVisibility(4);
 			findViewById(R.id.txtSystem).setVisibility(4);
 		}

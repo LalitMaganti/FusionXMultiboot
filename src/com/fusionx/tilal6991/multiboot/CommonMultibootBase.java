@@ -43,8 +43,7 @@ public class CommonMultibootBase extends Activity {
 				final String nextLine = scanner.nextLine();
 				if (nextLine.contains(findString) && !writtenOnce) {
 					s.write(replaceString + "\n");
-					if (once)
-						writtenOnce = true;
+					writtenOnce = once;
 				} else
 					s.write(nextLine + "\n");
 			}
@@ -86,7 +85,6 @@ public class CommonMultibootBase extends Activity {
 			os.flush();
 			String read = br.readLine();
 			while (read != null) {
-				Log.d(TAG, read);
 				sb.append(read + '\n');
 				read = br.readLine();
 			}
@@ -277,7 +275,6 @@ public class CommonMultibootBase extends Activity {
 	}
 
 	protected void makeRamdisk() {
-		makeRamdisk();
 		runRootCommands(new String[] { "cd " + dataDir,
 				"./mkbootfs boot.img-ramdisk | gzip > ramdisk.gz" });
 	}

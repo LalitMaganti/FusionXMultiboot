@@ -133,8 +133,8 @@ public class CreateRom extends CommonMultibootBase {
 					+ romName + "boot.img");
 
 			String shFile = "#!/system/bin/sh\n"
-					+ "flash_image boot /sdcard/multiboot/" + romName
-					+ "boot.img\n" + "reboot";
+					+ "erase_image boot && flash_image boot /sdcard/multiboot/"
+					+ romName + "boot.img && reboot";
 
 			publishProgress("Creating loop script file");
 			writeToFile(finalOutdir + "boot" + romName + ".sh", shFile);
