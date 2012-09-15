@@ -1,4 +1,5 @@
 <resources>
+
     <string name="app_name">FusionX Multiboot</string>
     <string name="title_activity_main">FusionX Multiboot</string>
     <string name="title_activity_make_multi_boot_rom">Create Multiboot Rom</string>
@@ -22,4 +23,5 @@
     <string name="string_name_of_system_image">Name of system image. WARNING - if this is wrong, the ROM will not boot</string>
     <string name="string_choose_rom">Choose ROM</string>
     <string name="string_name_of_data_image">Name of data image. WARNING - if this is wrong, the ROM will not boot</string>
+
 </resources>

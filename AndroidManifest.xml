@@ -19,14 +19,13 @@
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name="BootRom"
-            android:exported="false"
             android:configChanges="orientation"
+            android:exported="false"
             android:label="@string/title_activity_main"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -35,8 +34,8 @@
         </activity>
         <activity
             android:name=".MakeMultiBootRom"
-            android:exported="false"
             android:configChanges="orientation"
+            android:exported="false"
             android:label="@string/title_activity_make_multi_boot_rom"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -45,8 +44,8 @@
         </activity>
         <activity
             android:name=".SystemPartition"
-            android:exported="false"
             android:configChanges="orientation"
+            android:exported="false"
             android:label="@string/title_activity_system_partition"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -55,8 +54,8 @@
         </activity>
         <activity
             android:name=".DataPartition"
-            android:exported="false"
             android:configChanges="orientation"
+            android:exported="false"
             android:label="@string/title_activity_data_partition"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -65,8 +64,8 @@
         </activity>
         <activity
             android:name=".Finalisation"
-            android:exported="false"
             android:configChanges="orientation"
+            android:exported="false"
             android:label="@string/title_activity_finalisation"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -75,8 +74,8 @@
         </activity>
         <activity
             android:name=".CreateRom"
-            android:exported="false"
             android:configChanges="orientation"
+            android:exported="false"
             android:label="@string/title_activity_make_multi_boot_rom"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -85,8 +84,8 @@
         </activity>
         <activity
             android:name=".CreateOther"
-            android:exported="false"
             android:configChanges="orientation"
+            android:exported="false"
             android:label="@string/title_activity_make_loop_gapps"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -101,12 +100,10 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-                <activity
+        <activity
             android:name=".CommonMultibootBase"
             android:exported="false"
             android:label="@string/title_activity_create_from_nand" >
-            <intent-filter>
-            </intent-filter>
         </activity>
     </application>
 

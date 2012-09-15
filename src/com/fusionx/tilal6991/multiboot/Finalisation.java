@@ -44,7 +44,8 @@ public class Finalisation extends Activity {
 				if (file.isDirectory())
 					chooseRom(file);
 				else {
-					((TextView) findViewById(R.id.txtRom)).setText(file.getAbsolutePath());
+					((TextView) findViewById(R.id.txtRom)).setText(file
+							.getAbsolutePath());
 					findViewById(R.id.button1).setEnabled(true);
 					return;
 				}
@@ -103,11 +104,13 @@ public class Finalisation extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_finalisation);
 		b = getIntent().getExtras();
-		if ((b.getBoolean("gapps") == true) || (b.getBoolean("createdataimage") == true)) {
+		if ((b.getBoolean("gapps") == true)
+				|| (b.getBoolean("createdataimage") == true)) {
 			findViewById(R.id.edtData).setVisibility(4);
 			findViewById(R.id.txtData).setVisibility(4);
 		}
-	    if (!(b.getBoolean("gapps") == true) && (b.getBoolean("createsystemimage") == true)) {
+		if (!(b.getBoolean("gapps") == true)
+				&& (b.getBoolean("createsystemimage") == true)) {
 			findViewById(R.id.edtSystem).setVisibility(4);
 			findViewById(R.id.txtSystem).setVisibility(4);
 		}
