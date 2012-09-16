@@ -12,7 +12,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:checked="true"
-        android:onClick="changeEnable"
+        android:onClick="changeEnableData"
         android:text="@string/string_make_an_image_file_to_hold_the_data" />
 
     <TextView
@@ -32,17 +32,6 @@
         android:layout_marginTop="126dp"
         android:text="@string/string_data_image_size"
         android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="28dp"
-        android:layout_marginRight="19dp"
-        android:onClick="next"
-        android:text="@string/button_next" />
 
     <EditText
         android:id="@+id/editText1"

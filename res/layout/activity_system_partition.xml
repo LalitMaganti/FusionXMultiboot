@@ -7,17 +7,17 @@
     android:orientation="vertical" >
 
     <CheckBox
-        android:id="@+id/checkBox1"
+        android:id="@+id/checkBox1system"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:checked="true"
-        android:onClick="changeEnable"
+        android:onClick="changeEnableSystem"
         android:text="@string/button_make_image_to_hold_system" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/textView2system"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -26,7 +26,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/textView1system"
         android:layout_width="110dp"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
@@ -34,32 +34,21 @@
         android:text="@string/label_system_image_size"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="28dp"
-        android:layout_marginRight="19dp"
-        android:onClick="next"
-        android:text="@string/button_next" />
-
     <EditText
-        android:id="@+id/editText1"
+        android:id="@+id/editText1system"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/textView1"
+        android:layout_below="@+id/textView1system"
         android:ems="10"
         android:inputType="number" />
 
     <EditText
-        android:id="@+id/editText2"
+        android:id="@+id/editText2system"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/textView2"
+        android:layout_below="@+id/textView2system"
         android:ems="10"
         android:inputType="textNoSuggestions" >
 

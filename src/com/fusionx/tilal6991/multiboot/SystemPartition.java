@@ -1,26 +1,13 @@
 package com.fusionx.tilal6991.multiboot;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.CheckBox;
-import android.widget.EditText;
+import android.view.ViewGroup;
 
-public class SystemPartition extends Activity {
-	public void changeEnable(final View view) {
-		int visible;
-		if (!((CheckBox) view).isChecked())
-			visible = 4;
-		else
-			visible = 0;
-		findViewById(R.id.editText1).setVisibility(visible);
-		findViewById(R.id.editText2).setVisibility(visible);
-		findViewById(R.id.textView1).setVisibility(visible);
-		findViewById(R.id.textView2).setVisibility(visible);
-	}
-
-	public void next(final View v) {
+public class SystemPartition extends Fragment {
+	/*public void next(final View v) {
 		final Intent intent = new Intent(this, DataPartition.class);
 		final boolean checked = ((CheckBox) findViewById(R.id.checkBox1))
 				.isChecked();
@@ -34,12 +21,13 @@ public class SystemPartition extends Activity {
 							.toString());
 		}
 		startActivity(intent);
-	}
+	}*/
 
 	@Override
-	public void onCreate(final Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_system_partition);
-		changeEnable(findViewById(R.id.checkBox1));
+	public View onCreateView(final LayoutInflater inflater,
+			final ViewGroup container, final Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.activity_system_partition, container, false);
+		return view;
 	}
+
 }

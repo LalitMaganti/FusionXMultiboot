@@ -30,14 +30,14 @@ public class MainActivity extends Activity {
 	}
 
 	public void createGapps(final View view) {
-		final Intent intent = new Intent(this, Finalisation.class);
+		final Intent intent = new Intent(this, Navigation.class);
 		intent.putExtra("gapps", true);
 		startActivity(intent);
 	}
 
 	public void createRom(final View view) {
-		final Intent intent = new Intent(this, SystemPartition.class);
-		intent.putExtra("type", "normal");
+		final Intent intent = new Intent(this, Navigation.class);
+		intent.putExtra("gapps", false);
 		startActivity(intent);
 	}
 

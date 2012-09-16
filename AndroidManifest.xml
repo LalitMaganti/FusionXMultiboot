@@ -19,6 +19,7 @@
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -104,6 +105,17 @@
             android:name=".CommonMultibootBase"
             android:exported="false"
             android:label="@string/title_activity_create_from_nand" >
+        </activity>
+        <activity
+            android:name=".D"
+            android:exported="false"/>
+        <activity
+            android:name=".Navigation"
+            android:label="@string/title_activity_navigation"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
         </activity>
     </application>
 
