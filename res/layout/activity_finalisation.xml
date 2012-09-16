@@ -40,7 +40,8 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/edtSystem"
         android:text="@string/string_name_of_data_image"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:visibility="invisible" />
 
     <EditText
         android:id="@+id/edtData"
@@ -50,7 +51,8 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/txtData"
         android:ems="10"
-        android:inputType="textNoSuggestions" />
+        android:inputType="textNoSuggestions"
+        android:visibility="invisible" />
 
     <TextView
         android:id="@+id/txtRom"

@@ -33,7 +33,7 @@ public class Navigation extends FragmentActivity implements
 		@Override
 		public int getCount() {
 			if (b.getBoolean("gapps") == true)
-				return 2;
+				return 1;
 			else
 				return 3;
 		}
@@ -42,12 +42,12 @@ public class Navigation extends FragmentActivity implements
 		public Fragment getItem(final int i) {
 			switch (i) {
 			case 0:
-				return new SystemPartition();
-			case 1:
 				if (b.getBoolean("gapps") == true)
 					return new Finalisation();
 				else
-					return new DataPartition();
+					return new SystemPartition();
+			case 1:
+				return new DataPartition();
 			case 2:
 				return new Finalisation();
 			}
@@ -58,12 +58,12 @@ public class Navigation extends FragmentActivity implements
 		public CharSequence getPageTitle(final int position) {
 			switch (position) {
 			case 0:
-				return getString(R.string.title_section1).toUpperCase();
-			case 1:
 				if (b.getBoolean("gapps") == true)
 					return getString(R.string.title_section3).toUpperCase();
 				else
-					return getString(R.string.title_section2).toUpperCase();
+					return getString(R.string.title_section1).toUpperCase();
+			case 1:
+				return getString(R.string.title_section2).toUpperCase();
 			case 2:
 				return getString(R.string.title_section3).toUpperCase();
 			}
@@ -286,32 +286,37 @@ public class Navigation extends FragmentActivity implements
 		case 1:
 			changeEnableData();
 		case 2:
-			if (!(findViewById(R.id.checkBox1system) == null)) {
-				int systemImage;
-				if (b.getBoolean("gapps") == true
-						|| ((CheckBox) findViewById(R.id.checkBox1system))
-								.isChecked())
-					systemImage = 4;
-				else
-					systemImage = 0;
+			if (b.getBoolean("gapps") == true) {
 				if (!(findViewById(R.id.edtSystem) == null)) {
+					findViewById(R.id.edtSystem).setVisibility(0);
+					findViewById(R.id.txtSystem).setVisibility(0);
+				}
+				if (!(findViewById(R.id.edtData) == null)) {
+					findViewById(R.id.edtData).setVisibility(4);
+					findViewById(R.id.txtData).setVisibility(4);
+				}
+			} else {
+				if (!(findViewById(R.id.checkBox1system) == null)
+						&& !(findViewById(R.id.edtSystem) == null)) {
+					int systemImage;
+					if (((CheckBox) findViewById(R.id.checkBox1system))
+							.isChecked())
+						systemImage = 4;
+					else
+						systemImage = 0;
 					findViewById(R.id.edtSystem).setVisibility(systemImage);
 					findViewById(R.id.txtSystem).setVisibility(systemImage);
 				}
-			}
-			if (!(findViewById(R.id.checkBox1) == null)) {
-				int dataImage;
-				if (!(b.getBoolean("gapps") == true)
-						&& ((CheckBox) findViewById(R.id.checkBox1))
-								.isChecked())
-					dataImage = 4;
-				else
-					dataImage = 0;
-				if (!(findViewById(R.id.edtData) == null)) {
+				if (!(findViewById(R.id.checkBox1) == null)
+						&& !(findViewById(R.id.edtData) == null)) {
+					int dataImage;
+					if (((CheckBox) findViewById(R.id.checkBox1)).isChecked())
+						dataImage = 4;
+					else
+						dataImage = 0;
 					findViewById(R.id.edtData).setVisibility(dataImage);
 					findViewById(R.id.txtData).setVisibility(dataImage);
 				}
-
 			}
 		}
 	}

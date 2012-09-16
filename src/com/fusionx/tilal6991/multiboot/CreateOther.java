@@ -10,7 +10,6 @@ public class CreateOther extends CommonMultibootBase {
 
 	private class CreateMultibootGappsAsync extends
 			AsyncTask<Bundle, String, Void> {
-
 		private void cleanup() {
 			publishProgress("Cleaning up");
 			deleteIfExists(tempSdCardDir);
@@ -81,5 +80,4 @@ public class CreateOther extends CommonMultibootBase {
 		final CreateMultibootGappsAsync instance = new CreateMultibootGappsAsync();
 		instance.execute(getIntent().getExtras());
 	}
-
 }
