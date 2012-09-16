@@ -13,7 +13,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="40dp"
         android:onClick="openRomBoot"
-        android:text="@string/button_boot_multiboot_rom" />
+        android:text="@string/boot_multiboot_rom" />
 
     <Button
         android:id="@+id/Button01"

@@ -17,8 +17,8 @@ public class BootRom extends Activity {
 	private class chmodDir extends AsyncTask<Void, Void, Void> {
 		@Override
 		protected Void doInBackground(final Void... arg0) {
-			CommonMultibootBase.runRootCommand("chmod 777 " + multibootdir
-					+ "*.sh");
+			CommonFunctions
+					.runRootCommand("chmod 777 " + multibootdir + "*.sh");
 			return null;
 		}
 	}
@@ -26,7 +26,7 @@ public class BootRom extends Activity {
 	private class rebootIntoRom extends AsyncTask<String, Void, Void> {
 		@Override
 		protected Void doInBackground(final String... arg0) {
-			CommonMultibootBase.runRootCommand("sh " + multibootdir + arg0[0]);
+			CommonFunctions.runRootCommand("sh " + multibootdir + arg0[0]);
 			return null;
 		}
 	}

@@ -16,14 +16,14 @@ public class HomeScreen extends Activity {
 	private class CleaupAndExtract extends AsyncTask<Void, Void, Void> {
 		@Override
 		protected Void doInBackground(final Void... arg0) {
-			CommonMultibootBase
+			CommonFunctions
 					.deleteIfExists("/data/data/com.fusionx.tilal6991.multiboot/files/");
 			writeRawResource(R.raw.raw, "raw.tar");
-			CommonMultibootBase
+			CommonFunctions
 					.runRootCommand("tar -zxvf /data/data/com.fusionx.tilal6991.multiboot/files/raw.tar -C /data/data/com.fusionx.tilal6991.multiboot/files/");
-			CommonMultibootBase
+			CommonFunctions
 					.runRootCommand("chmod -R 777 /data/data/com.fusionx.tilal6991.multiboot/files/*");
-			CommonMultibootBase
+			CommonFunctions
 					.deleteIfExists("/data/data/com.fusionx.tilal6991.multiboot/files/raw.tar");
 			return null;
 		}
@@ -45,14 +45,14 @@ public class HomeScreen extends Activity {
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		CommonMultibootBase
+		CommonFunctions
 				.runRootCommand("cp /init.rc /sdcard/currentRom.init.rc");
 
-		if (CommonMultibootBase.findTextInFile("/sdcard/currentRom.init.rc",
+		if (CommonFunctions.findTextInFile("/sdcard/currentRom.init.rc",
 				"mount ext2 loop@"))
 			findViewById(R.id.button_create_from_nand).setVisibility(
 					View.INVISIBLE);
-		CommonMultibootBase.deleteIfExists("/sdcard/currentRom.init.rc");
+		CommonFunctions.deleteIfExists("/sdcard/currentRom.init.rc");
 		findViewById(R.id.button_create_from_nand)
 				.setVisibility(View.INVISIBLE);
 		new CleaupAndExtract().execute(null, null);

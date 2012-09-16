@@ -1,8 +1,7 @@
 <resources>
 
     <string name="app_name">FusionX Multiboot</string>
-    <string name="title_activity_main">FusionX Multiboot</string>
-    <string name="title_activity_make_multi_boot_rom">Create Multiboot Rom</string>
+    <string name="title_activity_make_multi_boot_rom">Create Multiboot ROM</string>
     <string name="title_activity_system_partition">System Image</string>
     <string name="title_activity_data_partition">Data Image</string>
     <string name="title_activity_finalisation">Finalisation</string>
@@ -11,13 +10,13 @@
     <string name="title_activity_make_loop_gapps">Make Multiboot Gapps</string>
     <string name="button_create_another_flashable_multiboot">Create another type of flashable multiboot packages (eg. GApps)</string>
     <string name="button_create_a_new_multiboot_rom">Create a new multiboot rom</string>
-    <string name="button_boot_multiboot_rom">Boot multiboot ROM</string>
+    <string name="boot_multiboot_rom">Boot another ROM</string>
     <string name="button_create_multiboot_rom_from_nand">Create a new multiboot ROM from the NAND</string>
     <string name="button_make_image_to_hold_system">Do you want to make an image file to hold the system for this ROM? (not neccessary if it is an upgrade from a previous ROM)</string>
     <string name="label_system_image_name">System Image Name</string>
     <string name="label_system_image_size">System Image Size (in MB)</string>
     <string name="title_activity_create_from_nand">Create Multiboot ROM From NAND</string>
-    <string name="string_make_an_image_file_to_hold_the_data">Do you want to make an image file to hold the data for this ROM? (not neccessary if it&amp;apos;s an upgrade from a previous ROM or you want to share a data image with another ROM)</string>
+    <string name="string_make_an_image_file_to_hold_the_data">Do you want to make an image file to hold the data for this ROM? (not neccessary if it\'s an upgrade from a previous ROM or you want to share a data image with another ROM)</string>
     <string name="string_data_image_name">Data Image Name</string>
     <string name="string_data_image_size">Data Image Size (in MB)</string>
     <string name="string_name_of_system_image">Name of system image. WARNING - if this is wrong, the ROM will not boot</string>

@@ -78,12 +78,16 @@ public class Navigation extends SherlockFragmentActivity implements
 
 	boolean createSystemImage = true;
 
+	String dataImageName;
+	String dataImageSize;
 	boolean gappsTime = false;
-
 	private String mChosen;
 	SectionsPagerAdapter mSectionsPagerAdapter;
 
 	ViewPager mViewPager;
+	String systemImageName;
+
+	String systemImageSize;
 
 	public void changeEnableData() {
 		if (!(findViewById(R.id.checkBox1) == null)) {
@@ -190,12 +194,8 @@ public class Navigation extends SherlockFragmentActivity implements
 				}
 			} else {
 				intent.putExtra("createdataimage", true);
-				intent.putExtra("dataimagename",
-						((EditText) findViewById(R.id.editText2)).getText()
-								.toString());
-				intent.putExtra("dataimagesize",
-						((EditText) findViewById(R.id.editText1)).getText()
-								.toString());
+				intent.putExtra("dataimagename", dataImageName);
+				intent.putExtra("dataimagesize", dataImageSize);
 			}
 			if (!createSystemImage) {
 				if (new File(Environment.getExternalStorageDirectory()
@@ -207,12 +207,8 @@ public class Navigation extends SherlockFragmentActivity implements
 				}
 			} else {
 				intent.putExtra("createsystemimage", true);
-				intent.putExtra("systemimagename",
-						((EditText) findViewById(R.id.editText2system))
-								.getText().toString());
-				intent.putExtra("systemimagesize",
-						((EditText) findViewById(R.id.editText1system))
-								.getText().toString());
+				intent.putExtra("systemimagename", systemImageName);
+				intent.putExtra("systemimagesize", systemImageSize);
 			}
 		}
 		intent.putExtra("filename", mChosen);
@@ -302,9 +298,13 @@ public class Navigation extends SherlockFragmentActivity implements
 						&& !(findViewById(R.id.edtSystem) == null)) {
 					int systemImage;
 					if (((CheckBox) findViewById(R.id.checkBox1system))
-							.isChecked())
+							.isChecked()) {
 						systemImage = 4;
-					else
+						systemImageSize = ((EditText) findViewById(R.id.editText1system))
+								.getText().toString();
+						systemImageName = ((EditText) findViewById(R.id.editText2system))
+								.getText().toString();
+					} else
 						systemImage = 0;
 					findViewById(R.id.edtSystem).setVisibility(systemImage);
 					findViewById(R.id.txtSystem).setVisibility(systemImage);
@@ -312,9 +312,13 @@ public class Navigation extends SherlockFragmentActivity implements
 				if (!(findViewById(R.id.checkBox1) == null)
 						&& !(findViewById(R.id.edtData) == null)) {
 					int dataImage;
-					if (((CheckBox) findViewById(R.id.checkBox1)).isChecked())
+					if (((CheckBox) findViewById(R.id.checkBox1)).isChecked()) {
 						dataImage = 4;
-					else
+						dataImageSize = ((EditText) findViewById(R.id.editText1))
+								.getText().toString();
+						dataImageName = ((EditText) findViewById(R.id.editText2))
+								.getText().toString();
+					} else
 						dataImage = 0;
 					findViewById(R.id.edtData).setVisibility(dataImage);
 					findViewById(R.id.txtData).setVisibility(dataImage);

@@ -57,8 +57,8 @@ public class CreateRom extends CommonMultibootBase {
 
 		private void extractRom() {
 			publishProgress("Extracting ROM - this may take quite some time");
-			CommonFunctions.runRootCommand(dataDir + "busybox unzip -q " + inputFile + " -d "
-					+ romExtractionDir);
+			CommonFunctions.runRootCommand(dataDir + "busybox unzip -q "
+					+ inputFile + " -d " + romExtractionDir);
 		}
 
 		private void makeDataImage() {
@@ -68,10 +68,12 @@ public class CreateRom extends CommonMultibootBase {
 		}
 
 		private void makeImage(final String imageOutput, final int imageSize) {
-			final String losetupLocation = CommonFunctions.runRootCommand("losetup -f").trim();
+			final String losetupLocation = CommonFunctions.runRootCommand(
+					"losetup -f").trim();
 			CommonFunctions.runRootCommand("dd if=/dev/zero of=" + imageOutput
 					+ " bs=1024 count=" + imageSize);
-			CommonFunctions.runRootCommand("losetup " + losetupLocation + " " + imageOutput);
+			CommonFunctions.runRootCommand("losetup " + losetupLocation + " "
+					+ imageOutput);
 			CommonFunctions.runRootCommand("mke2fs -t ext2 " + losetupLocation);
 			try {
 				Thread.sleep(10000);
@@ -110,13 +112,13 @@ public class CreateRom extends CommonMultibootBase {
 			final String updaterScriptFile = "package_extract_file(\"boot.img\", \"/tmp/boot.img\");write_raw_image(\"/tmp/boot.img\", \"boot\");";
 
 			publishProgress("Creating flashable boot image in recovery");
-			CommonMultibootBase
+			CommonFunctions
 					.writeToFile(
 							tempSdCardDir
 									+ "tempFlashBoot/META-INF/com/google/android/updater-script",
 							updaterScriptFile);
 
-			CommonMultibootBase
+			CommonFunctions
 					.runRootCommand("cp "
 							+ romExtractionDir
 							+ "META-INF/com/google/android/update-binary "
@@ -148,7 +150,7 @@ public class CreateRom extends CommonMultibootBase {
 				deleteIfExists(finalOutdir + "boot.sh");
 
 				publishProgress("Creating nand boot image");
-				CommonMultibootBase
+				CommonFunctions
 						.runRootCommand("dd if=/dev/mtd/mtd1 of=/sdcard/multiboot/boot.img bs=4096");
 
 				shFile = "#!/system/bin/sh\n"

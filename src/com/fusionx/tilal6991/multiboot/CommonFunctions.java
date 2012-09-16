@@ -15,11 +15,12 @@ import android.util.Log;
 public class CommonFunctions extends Activity {
 
 	public static final String TAG = "FusionXMultiboot";
-	
+
 	static void deleteIfExists(final String fileName) {
 		if (new File(fileName).exists())
 			runRootCommand("rm -rf " + fileName);
 	}
+
 	static void findAndReplaceInFile(final String fileName,
 			final String findString, final String replaceString) {
 		findAndReplaceInFile(fileName, findString, replaceString, false);

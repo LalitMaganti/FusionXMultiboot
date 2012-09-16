@@ -45,8 +45,8 @@ public class CreateOther extends CommonMultibootBase {
 
 		private void extractRom() {
 			publishProgress("Extracting misc package file");
-			CommonFunctions.runRootCommand(dataDir + "busybox unzip -q " + inputFile + " -d "
-					+ romExtractionDir);
+			CommonFunctions.runRootCommand(dataDir + "busybox unzip -q "
+					+ inputFile + " -d " + romExtractionDir);
 		}
 
 		@Override
