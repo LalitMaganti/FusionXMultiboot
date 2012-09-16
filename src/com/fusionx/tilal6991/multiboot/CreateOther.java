@@ -12,8 +12,8 @@ public class CreateOther extends CommonMultibootBase {
 			AsyncTask<Bundle, String, Void> {
 		private void cleanup() {
 			publishProgress("Cleaning up");
-			deleteIfExists(tempSdCardDir);
-			deleteIfExists(dataDir);
+			CommonFunctions.deleteIfExists(tempSdCardDir);
+			CommonFunctions.deleteIfExists(dataDir);
 			publishProgress("PLEASE FLASH THE BOOT IMAGE OF THE ROM YOU WANT TO BOOT INTO IN RECOVERY AFTER FLASHING THE PACKAGE JUST CREATED. The files can be found at /sdcard/multiboot/boot-images/");
 			publishProgress("Finished!");
 		}
@@ -45,7 +45,7 @@ public class CreateOther extends CommonMultibootBase {
 
 		private void extractRom() {
 			publishProgress("Extracting misc package file");
-			runRootCommand(dataDir + "busybox unzip -q " + inputFile + " -d "
+			CommonFunctions.runRootCommand(dataDir + "busybox unzip -q " + inputFile + " -d "
 					+ romExtractionDir);
 		}
 
@@ -67,9 +67,9 @@ public class CreateOther extends CommonMultibootBase {
 
 		private void preClean() {
 			publishProgress("Running a preclean");
-			deleteIfExists(finalOutdir + "loop-roms/" + romName
+			CommonFunctions.deleteIfExists(finalOutdir + "loop-roms/" + romName
 					+ "-loopinstall.zip");
-			deleteIfExists(tempSdCardDir);
+			CommonFunctions.deleteIfExists(tempSdCardDir);
 		}
 	}
 

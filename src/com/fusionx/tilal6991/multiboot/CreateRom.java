@@ -10,8 +10,8 @@ public class CreateRom extends CommonMultibootBase {
 
 		private void cleanup() {
 			publishProgress("Cleaning up");
-			deleteIfExists(tempSdCardDir);
-			deleteIfExists(dataDir);
+			CommonFunctions.deleteIfExists(tempSdCardDir);
+			CommonFunctions.deleteIfExists(dataDir);
 			publishProgress("Finished!");
 		}
 
@@ -57,7 +57,7 @@ public class CreateRom extends CommonMultibootBase {
 
 		private void extractRom() {
 			publishProgress("Extracting ROM - this may take quite some time");
-			runRootCommand(dataDir + "busybox unzip -q " + inputFile + " -d "
+			CommonFunctions.runRootCommand(dataDir + "busybox unzip -q " + inputFile + " -d "
 					+ romExtractionDir);
 		}
 
@@ -68,17 +68,17 @@ public class CreateRom extends CommonMultibootBase {
 		}
 
 		private void makeImage(final String imageOutput, final int imageSize) {
-			final String losetupLocation = runRootCommand("losetup -f").trim();
-			runRootCommand("dd if=/dev/zero of=" + imageOutput
+			final String losetupLocation = CommonFunctions.runRootCommand("losetup -f").trim();
+			CommonFunctions.runRootCommand("dd if=/dev/zero of=" + imageOutput
 					+ " bs=1024 count=" + imageSize);
-			runRootCommand("losetup " + losetupLocation + " " + imageOutput);
-			runRootCommand("mke2fs -t ext2 " + losetupLocation);
+			CommonFunctions.runRootCommand("losetup " + losetupLocation + " " + imageOutput);
+			CommonFunctions.runRootCommand("mke2fs -t ext2 " + losetupLocation);
 			try {
 				Thread.sleep(10000);
 			} catch (final InterruptedException e) {
 				e.getStackTrace();
 			}
-			runRootCommand("losetup -d " + losetupLocation);
+			CommonFunctions.runRootCommand("losetup -d " + losetupLocation);
 		}
 
 		private void makeSystemImage() {

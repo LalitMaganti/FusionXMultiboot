@@ -33,7 +33,7 @@ public class Navigation extends SherlockFragmentActivity implements
 
 		@Override
 		public int getCount() {
-			if (b.getBoolean("gapps") == true)
+			if (gappsTime == true)
 				return 1;
 			else
 				return 3;
@@ -43,14 +43,14 @@ public class Navigation extends SherlockFragmentActivity implements
 		public Fragment getItem(final int i) {
 			switch (i) {
 			case 0:
-				if (b.getBoolean("gapps") == true)
-					return new Finalisation();
+				if (gappsTime == true)
+					return new Fragments.Finalisation();
 				else
-					return new SystemPartition();
+					return new Fragments.SystemPartition();
 			case 1:
-				return new DataPartition();
+				return new Fragments.DataPartition();
 			case 2:
-				return new Finalisation();
+				return new Fragments.Finalisation();
 			}
 			return null;
 		}
@@ -59,7 +59,7 @@ public class Navigation extends SherlockFragmentActivity implements
 		public CharSequence getPageTitle(final int position) {
 			switch (position) {
 			case 0:
-				if (b.getBoolean("gapps") == true)
+				if (gappsTime == true)
 					return getString(R.string.title_section3).toUpperCase();
 				else
 					return getString(R.string.title_section1).toUpperCase();
@@ -73,15 +73,16 @@ public class Navigation extends SherlockFragmentActivity implements
 	}
 
 	static final int DIALOG_LACK_OF_SYSTEM_IMAGE = 0;
-	private Bundle b;
 
 	boolean createDataImage = true;
 
 	boolean createSystemImage = true;
 
-	private String mChosen;
+	boolean gappsTime = false;
 
+	private String mChosen;
 	SectionsPagerAdapter mSectionsPagerAdapter;
+
 	ViewPager mViewPager;
 
 	public void changeEnableData() {
@@ -168,7 +169,7 @@ public class Navigation extends SherlockFragmentActivity implements
 		final String dataImage = ((EditText) findViewById(R.id.edtData))
 				.getText().toString();
 		Intent intent = null;
-		if (b.getBoolean("gapps") == true) {
+		if (gappsTime == true) {
 			intent = new Intent(this, CreateOther.class);
 			if (new File(Environment.getExternalStorageDirectory()
 					+ "/multiboot/" + systemImage).exists())
@@ -224,7 +225,7 @@ public class Navigation extends SherlockFragmentActivity implements
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_navigation);
-		b = getIntent().getExtras();
+		gappsTime = getIntent().getExtras().getBoolean("gapps");
 		mSectionsPagerAdapter = new SectionsPagerAdapter(
 				getSupportFragmentManager());
 
@@ -287,7 +288,7 @@ public class Navigation extends SherlockFragmentActivity implements
 		case 1:
 			changeEnableData();
 		case 2:
-			if (b.getBoolean("gapps") == true) {
+			if (gappsTime == true) {
 				if (!(findViewById(R.id.edtSystem) == null)) {
 					findViewById(R.id.edtSystem).setVisibility(0);
 					findViewById(R.id.txtSystem).setVisibility(0);
