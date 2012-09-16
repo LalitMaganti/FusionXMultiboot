@@ -12,7 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 
-public class MainActivity extends Activity {
+public class HomeScreen extends Activity {
 	private class CleaupAndExtract extends AsyncTask<Void, Void, Void> {
 		@Override
 		protected Void doInBackground(final Void... arg0) {

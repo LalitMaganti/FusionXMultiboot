@@ -48,7 +48,7 @@ public class BootRom extends Activity {
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_romboot);
+		setContentView(R.layout.activity_boot_roms);
 
 		final LinearLayout ll = (LinearLayout) findViewById(R.id.layout);
 

@@ -3,7 +3,7 @@
     android:versionCode="3"
     android:versionName="3.2.0" >
 
-    <uses-sdk android:minSdkVersion="14" />
+    <uses-sdk android:minSdkVersion="10" />
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -11,15 +11,14 @@
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.Holo.Light" >
+        android:theme="@style/Theme.MyTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name=".HomeScreen"
             android:configChanges="orientation"
             android:label="@string/title_activity_main"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -28,46 +27,6 @@
             android:configChanges="orientation"
             android:exported="false"
             android:label="@string/title_activity_main"
-            android:screenOrientation="portrait" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".MakeMultiBootRom"
-            android:configChanges="orientation"
-            android:exported="false"
-            android:label="@string/title_activity_make_multi_boot_rom"
-            android:screenOrientation="portrait" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".SystemPartition"
-            android:configChanges="orientation"
-            android:exported="false"
-            android:label="@string/title_activity_system_partition"
-            android:screenOrientation="portrait" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".DataPartition"
-            android:configChanges="orientation"
-            android:exported="false"
-            android:label="@string/title_activity_data_partition"
-            android:screenOrientation="portrait" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".Finalisation"
-            android:configChanges="orientation"
-            android:exported="false"
-            android:label="@string/title_activity_finalisation"
             android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -108,8 +67,8 @@
         </activity>
         <activity
             android:name=".Navigation"
-            android:label="@string/title_activity_navigation"
-            android:exported="false" >
+            android:exported="false"
+            android:label="@string/title_activity_navigation" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>

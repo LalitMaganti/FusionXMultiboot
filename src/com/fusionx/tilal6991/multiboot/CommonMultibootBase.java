@@ -126,7 +126,7 @@ public class CommonMultibootBase extends Activity {
 		@Override
 		public void run() {
 			final Intent intent = new Intent(getApplicationContext(),
-					MainActivity.class);
+					HomeScreen.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(intent);
 		}
