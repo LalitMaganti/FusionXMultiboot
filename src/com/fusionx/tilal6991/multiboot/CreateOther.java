@@ -1,7 +1,5 @@
 package com.fusionx.tilal6991.multiboot;
 
-import java.io.File;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -13,7 +11,7 @@ public class CreateOther extends CommonMultibootBase {
 		private void cleanup() {
 			publishProgress("Cleaning up");
 			CommonFunctions.deleteIfExists(tempSdCardDir);
-			CommonFunctions.deleteIfExists(dataDir);
+			CommonFunctions.deleteIfExists(workingDir);
 			publishProgress("PLEASE FLASH THE BOOT IMAGE OF THE ROM YOU WANT TO BOOT INTO IN RECOVERY AFTER FLASHING THE PACKAGE JUST CREATED. The files can be found at /sdcard/multiboot/boot-images/");
 			publishProgress("Finished!");
 		}
@@ -29,8 +27,7 @@ public class CreateOther extends CommonMultibootBase {
 			preClean();
 
 			publishProgress("Making directories");
-			new File(romExtractionDir).mkdirs();
-			new File(finalOutdir + "loop-roms").mkdirs();
+			makeDirectories();
 
 			publishProgress("Getting data from wizard");
 			systemImageName = bundle.getString("systemimagename");
@@ -63,13 +60,6 @@ public class CreateOther extends CommonMultibootBase {
 					"cd " + romExtractionDir,
 					dataDir + "zip -r -q " + finalOutdir + "loop-roms/"
 							+ romName + "-loopinstall.zip " + "*" });
-		}
-
-		private void preClean() {
-			publishProgress("Running a preclean");
-			CommonFunctions.deleteIfExists(finalOutdir + "loop-roms/" + romName
-					+ "-loopinstall.zip");
-			CommonFunctions.deleteIfExists(tempSdCardDir);
 		}
 	}
 

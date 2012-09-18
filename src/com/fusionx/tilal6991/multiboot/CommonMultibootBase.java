@@ -1,11 +1,7 @@
 package com.fusionx.tilal6991.multiboot;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Scanner;
 
 import android.content.Intent;
@@ -13,11 +9,28 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.widget.TextView;
 
 public class CommonMultibootBase extends CommonFunctions {
 	public static final String dataDir = "/data/data/com.fusionx.tilal6991.multiboot/files/";
+	public static final String workingDir = dataDir + "working/";
+
+	protected static void makeImage(final String imageOutput,
+			final int imageSize) {
+		final String losetupLocation = CommonFunctions.runRootCommand(
+				"losetup -f").trim();
+		runRootCommand("dd if=/dev/zero of=" + imageOutput + " bs=1024 count="
+				+ imageSize);
+		runRootCommand("losetup " + losetupLocation + " " + imageOutput);
+		runRootCommand("mke2fs -t ext2 " + losetupLocation);
+		try {
+			Thread.sleep(10000);
+		} catch (final InterruptedException e) {
+			e.getStackTrace();
+		}
+		runRootCommand("losetup -d " + losetupLocation);
+	}
+
 	String base;
 
 	protected Bundle bundle;
@@ -83,7 +96,7 @@ public class CommonMultibootBase extends CommonFunctions {
 				"    mount ext2 loop@" + externalDir + "/multiboot/"
 						+ dataImageName + " /data nosuid nodev");
 
-		runRootCommand("cp " + tempSdCardDir + "init.rc " + dataDir
+		runRootCommand("cp " + tempSdCardDir + "init.rc " + workingDir
 				+ "boot.img-ramdisk/init.rc");
 		deleteIfExists(tempSdCardDir + "init.rc");
 	}
@@ -100,10 +113,13 @@ public class CommonMultibootBase extends CommonFunctions {
 				"gunzip -c ../boot.img-ramdisk.cpio.gz | cpio -i" });
 
 		deleteIfExists(dataDir + "boot.img");
+		
+		runRootCommand("mv " + dataDir + "boot.img-ramdisk " + workingDir);
+		runRootCommand("mv " + dataDir + "boot.img-kernel " + workingDir);
 
-		runRootCommand("cp " + dataDir + "boot.img-ramdisk/init.rc "
+		runRootCommand("cp " + workingDir + "boot.img-ramdisk/init.rc "
 				+ tempSdCardDir + "init.rc");
-		deleteIfExists(dataDir + "boot.img-ramdisk/init.rc");
+		deleteIfExists(workingDir + "boot.img-ramdisk/init.rc");
 	}
 
 	protected void fixUpdaterScript() {
@@ -175,21 +191,23 @@ public class CommonMultibootBase extends CommonFunctions {
 		runRootCommands(new String[] {
 				"cd " + dataDir,
 				"./mkbootimg --cmdline " + commandLine + " --base " + base
-						+ " --kernel boot.img-kernel --ramdisk ramdisk.gz -o "
-						+ romExtractionDir + "boot.img" });
+						+ " --kernel + " + workingDir
+						+ "boot.img-kernel --ramdisk " + workingDir
+						+ "ramdisk.gz -o " + romExtractionDir + "boot.img" });
 	}
 
 	protected void makeDirectories() {
-		new File(romExtractionDir).mkdirs();
-		new File(finalOutdir + "loop-roms").mkdirs();
-		new File(finalOutdir + "boot-images").mkdirs();
-		new File(tempSdCardDir + "tempFlashBoot/META-INF/com/google/android/")
-				.mkdirs();
+		makeDirectoryIfNotExists(workingDir);
+		makeDirectoryIfNotExists(romExtractionDir);
+		makeDirectoryIfNotExists(finalOutdir + "loop-roms");
+		makeDirectoryIfNotExists(finalOutdir + "boot-images");
+		makeDirectoryIfNotExists(tempSdCardDir
+				+ "tempFlashBoot/META-INF/com/google/android/");
 	}
 
 	protected void makeRamdisk() {
 		runRootCommands(new String[] { "cd " + dataDir,
-				"./mkbootfs boot.img-ramdisk | gzip > ramdisk.gz" });
+				"./mkbootfs " + workingDir + "boot.img-ramdisk | gzip > " + workingDir + "ramdisk.gz" });
 	}
 
 	protected void moveBootImage() {
@@ -214,32 +232,6 @@ public class CommonMultibootBase extends CommonFunctions {
 		deleteIfExists(finalOutdir + "loop-roms/" + romName
 				+ "-loopinstall.zip");
 		deleteIfExists(tempSdCardDir);
-	}
-
-	protected String runRootCommands(final String[] cmd) {
-		final StringBuilder sb = new StringBuilder();
-		try {
-			final Process p = Runtime.getRuntime().exec("su");
-			final BufferedReader br = new BufferedReader(new InputStreamReader(
-					p.getInputStream()));
-			final DataOutputStream os = new DataOutputStream(
-					p.getOutputStream());
-			for (final String command : cmd) {
-				Log.d(TAG, command);
-				os.writeBytes(command + "\n");
-			}
-			os.writeBytes("exit\n");
-			os.flush();
-			String read = br.readLine();
-			while (read != null) {
-				Log.d(TAG, read);
-				sb.append(read + '\n');
-				read = br.readLine();
-			}
-		} catch (final IOException e) {
-			e.printStackTrace();
-		}
-		return sb.toString();
 	}
 
 	protected void WriteOutput(final String paramString) {

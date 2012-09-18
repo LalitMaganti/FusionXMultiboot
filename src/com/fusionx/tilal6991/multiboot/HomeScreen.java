@@ -16,16 +16,35 @@ public class HomeScreen extends Activity {
 	private class CleaupAndExtract extends AsyncTask<Void, Void, Void> {
 		@Override
 		protected Void doInBackground(final Void... arg0) {
-			CommonFunctions
-					.deleteIfExists("/data/data/com.fusionx.tilal6991.multiboot/files/");
-			writeRawResource(R.raw.raw, "raw.tar");
-			CommonFunctions
-					.runRootCommand("tar -zxvf /data/data/com.fusionx.tilal6991.multiboot/files/raw.tar -C /data/data/com.fusionx.tilal6991.multiboot/files/");
+			if (!new File("/data/data/com.fusionx.tilal6991.multiboot/files/zip")
+					.exists()) {
+				writeRawResource(R.raw.raw, "raw.tar");
+				CommonFunctions
+						.runRootCommand("tar -zxvf /data/data/com.fusionx.tilal6991.multiboot/files/raw.tar -C /data/data/com.fusionx.tilal6991.multiboot/files/");
+				CommonFunctions
+						.deleteIfExists("/data/data/com.fusionx.tilal6991.multiboot/files/raw.tar");
+			}
 			CommonFunctions
 					.runRootCommand("chmod -R 777 /data/data/com.fusionx.tilal6991.multiboot/files/*");
-			CommonFunctions
-					.deleteIfExists("/data/data/com.fusionx.tilal6991.multiboot/files/raw.tar");
 			return null;
+		}
+		private void writeRawResource(final int resource, final String name) {
+			if (!new File("/data/data/com.fusionx.tilal6991.multiboot/files/"
+					+ name).exists())
+				try {
+					final InputStream in = getResources().openRawResource(resource);
+					final byte[] buffer = new byte[4096];
+					final OutputStream out = openFileOutput(name,
+							Context.MODE_PRIVATE);
+					int n = in.read(buffer, 0, buffer.length);
+					while (n >= 0) {
+						out.write(buffer, 0, n);
+						n = in.read(buffer, 0, buffer.length);
+					}
+					in.close();
+					out.close();
+				} catch (final IOException e) {
+				}
 		}
 	}
 
@@ -50,8 +69,7 @@ public class HomeScreen extends Activity {
 
 		if (CommonFunctions.findTextInFile("/sdcard/currentRom.init.rc",
 				"mount ext2 loop@"))
-			findViewById(R.id.button_create_from_nand).setVisibility(
-					View.INVISIBLE);
+			findViewById(R.id.button_create_from_nand).setVisibility(4);
 		CommonFunctions.deleteIfExists("/sdcard/currentRom.init.rc");
 		findViewById(R.id.button_create_from_nand)
 				.setVisibility(View.INVISIBLE);
@@ -61,24 +79,5 @@ public class HomeScreen extends Activity {
 	public void openRomBoot(final View view) {
 		final Intent intent = new Intent(this, BootRom.class);
 		startActivity(intent);
-	}
-
-	private void writeRawResource(final int resource, final String name) {
-		if (!new File("/data/data/com.fusionx.tilal6991.multiboot/files/"
-				+ name).exists())
-			try {
-				final InputStream in = getResources().openRawResource(resource);
-				final byte[] buffer = new byte[4096];
-				final OutputStream out = openFileOutput(name,
-						Context.MODE_PRIVATE);
-				int n = in.read(buffer, 0, buffer.length);
-				while (n >= 0) {
-					out.write(buffer, 0, n);
-					n = in.read(buffer, 0, buffer.length);
-				}
-				in.close();
-				out.close();
-			} catch (final IOException e) {
-			}
 	}
 }

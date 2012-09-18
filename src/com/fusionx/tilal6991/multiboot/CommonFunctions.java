@@ -15,6 +15,7 @@ import android.util.Log;
 public class CommonFunctions extends Activity {
 
 	public static final String TAG = "FusionXMultiboot";
+	public static final boolean DEBUG = true;
 
 	static void deleteIfExists(final String fileName) {
 		if (new File(fileName).exists())
@@ -73,7 +74,8 @@ public class CommonFunctions extends Activity {
 					p.getInputStream()));
 			final DataOutputStream os = new DataOutputStream(
 					p.getOutputStream());
-			Log.d(TAG, cmd);
+			if (DEBUG)
+				Log.d(TAG, cmd);
 			os.writeBytes(cmd + "\n");
 			os.writeBytes("exit\n");
 			os.flush();
@@ -85,8 +87,44 @@ public class CommonFunctions extends Activity {
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
-
+		if (DEBUG)
+			sb.toString();
 		return sb.toString();
+	}
+
+	protected String runRootCommands(final String[] cmd) {
+		final StringBuilder sb = new StringBuilder();
+		try {
+			final Process p = Runtime.getRuntime().exec("su");
+			final BufferedReader br = new BufferedReader(new InputStreamReader(
+					p.getInputStream()));
+			final DataOutputStream os = new DataOutputStream(
+					p.getOutputStream());
+			if (DEBUG)
+				for (final String command : cmd) {
+					Log.d(TAG, command);
+					os.writeBytes(command + "\n");
+				}
+			os.writeBytes("exit\n");
+			os.flush();
+			String read = br.readLine();
+			while (read != null) {
+				Log.d(TAG, read);
+				sb.append(read + '\n');
+				read = br.readLine();
+			}
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
+		if (DEBUG)
+			sb.toString();
+		return sb.toString();
+	}
+
+	static void makeDirectoryIfNotExists(String file) {
+		File f = new File(file);
+		if (!(f.exists()))
+			f.mkdirs();
 	}
 
 	static void writeToFile(final String fileName, final String stringToWrite) {
