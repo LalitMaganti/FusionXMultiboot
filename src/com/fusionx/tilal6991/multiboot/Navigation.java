@@ -212,6 +212,7 @@ public class Navigation extends SherlockFragmentActivity implements
 			}
 		}
 		intent.putExtra("filename", mChosen);
+		intent.putExtra("filePath", ((TextView) findViewById(R.id.txtRom)).getText());
 		intent.putExtras(getIntent().getExtras());
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);

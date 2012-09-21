@@ -2,7 +2,6 @@ package com.fusionx.tilal6991.multiboot;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 
 public class CreateRom extends CommonMultibootBase {
 	private class CreateMultibootRomAsync extends
@@ -18,8 +17,7 @@ public class CreateRom extends CommonMultibootBase {
 		@Override
 		protected Void doInBackground(final Bundle... params) {
 			bundle = params[0];
-			inputFile = Environment.getExternalStorageDirectory()
-					.getAbsolutePath() + "/" + bundle.getString("filename");
+			inputFile = bundle.getString("filePath");
 			romName = bundle.getString("filename").replace(".zip", "");
 			romExtractionDir = tempSdCardDir + romName + "/";
 			tempFlashableBootDir = tempSdCardDir + "tempFlashBoot/";
@@ -57,8 +55,8 @@ public class CreateRom extends CommonMultibootBase {
 
 		private void extractRom() {
 			publishProgress("Extracting ROM - this may take quite some time");
-			runRootCommand(dataDir + "busybox unzip -q "
-					+ inputFile + " -d " + romExtractionDir);
+			runRootCommand(dataDir + "busybox unzip -q " + inputFile + " -d "
+					+ romExtractionDir);
 		}
 
 		private void makeDataImage() {
