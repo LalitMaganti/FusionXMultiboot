@@ -12,7 +12,7 @@ public class CreateOther extends CommonMultibootBase {
 			publishProgress("Cleaning up");
 			CommonFunctions.deleteIfExists(tempSdCardDir);
 			CommonFunctions.deleteIfExists(workingDir);
-			publishProgress("PLEASE FLASH THE BOOT IMAGE OF THE ROM YOU WANT TO BOOT INTO IN RECOVERY AFTER FLASHING THE PACKAGE JUST CREATED. The files can be found at /sdcard/multiboot/boot-images/");
+			publishProgress("PLEASE FLASH THE BOOT IMAGE OF THE ROM YOU WANT TO BOOT INTO IN RECOVERY AFTER FLASHING THE JUST CREATED PACKAGE. The files can be found at /sdcard/multiboot/boot-images/");
 			publishProgress("Finished!");
 		}
 
